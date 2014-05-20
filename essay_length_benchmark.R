@@ -99,7 +99,9 @@ model.at_least_1_teacher_referred_donor <- randomForest(
     short_description_length +
     need_statement_length +
     essay_length,
-  data=data$train
+  data=data$train,
+  do.trace=TRUE,
+  importance=TRUE
   )
 
 table(data$test$at_least_1_teacher_referred_donor,
