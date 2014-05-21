@@ -40,14 +40,14 @@ outcomes.data <- subset(outcomes.data, one_non_teacher_referred_donor_giving_100
 outcomes.data <- subset(outcomes.data, donation_from_thoughtful_donor != "")
 outcomes.data <- subset(outcomes.data, fully_funded != "")
 
-outcomes.data$is_exciting <- (outcomes.data$is_exciting == "t")
-outcomes.data$at_least_1_teacher_referred_donor <- (outcomes.data$at_least_1_teacher_referred_donor == "t")
-outcomes.data$fully_funded <- (outcomes.data$fully_funded == "t")
-outcomes.data$at_least_1_green_donation <- (outcomes.data$at_least_1_green_donation == "t")
-outcomes.data$great_chat <- (outcomes.data$great_chat == "t")
-outcomes.data$three_or_more_non_teacher_referred_donors <- (outcomes.data$three_or_more_non_teacher_referred_donors == "t")
-outcomes.data$one_non_teacher_referred_donor_giving_100_plus <- (outcomes.data$one_non_teacher_referred_donor_giving_100_plus == "t")
-outcomes.data$donation_from_thoughtful_donor <- (outcomes.data$donation_from_thoughtful_donor == "t")
+outcomes.data$is_exciting <- factor(ifelse(outcomes.data$is_exciting == "t", "Yes", "No"))
+outcomes.data$at_least_1_teacher_referred_donor <- factor(ifelse(outcomes.data$at_least_1_teacher_referred_donor == "t", "Yes", "No"))
+outcomes.data$fully_funded <- factor(ifelse(outcomes.data$fully_funded == "t", "Yes", "No"))
+outcomes.data$at_least_1_green_donation <- factor(ifelse(outcomes.data$at_least_1_green_donation == "t", "Yes", "No"))
+outcomes.data$great_chat <- factor(ifelse(outcomes.data$great_chat == "t", "Yes", "No"))
+outcomes.data$three_or_more_non_teacher_referred_donors <- factor(ifelse(outcomes.data$three_or_more_non_teacher_referred_donors == "t", "Yes", "No"))
+outcomes.data$one_non_teacher_referred_donor_giving_100_plus <- factor(ifelse(outcomes.data$one_non_teacher_referred_donor_giving_100_plus == "t", "Yes", "No"))
+outcomes.data$donation_from_thoughtful_donor <- factor(ifelse(outcomes.data$donation_from_thoughtful_donor == "t", "Yes", "No"))
 
 # Project data set
 drv <- dbDriver("SQLite")
@@ -91,19 +91,50 @@ get.data.train.test <- function(nb.sample.all, nb.sample.test) {
 
 # Model
 library(randomForest)
-data <- get.data.train.test(20000, 1000)
 
-model.at_least_1_teacher_referred_donor <- randomForest(
-  at_least_1_teacher_referred_donor ~ 
-    title_length + 
-    short_description_length +
-    need_statement_length +
-    essay_length,
-  data=data$train,
-  do.trace=TRUE,
-  importance=TRUE
+result <- data.frame()
+
+total.sizes <- c(5000, 10000, 50000, 100000, 200000)
+total.sizes <- c(10000, 20000, 30000, 40000, 50000, 60000)
+# total.sizes <- c(5000)
+nb.test <- 5000
+nb.total <- 5000
+
+for(nb.total in total.sizes) {
+  cat("Calcul pour taille", nb.total, "\n")
+  nb.train <- (nb.total - 1000)
+  data <- get.data.train.test(nb.total, nb.test)
+  
+  model.is_exciting <- randomForest(
+    is_exciting ~ 
+      title_length + 
+      short_description_length +
+      need_statement_length +
+      essay_length,
+    data=data$train,
+    do.trace=TRUE,
+    importance=FALSE,
+    ntree=200
   )
+  
+  prediction.rf <- predict(model.is_exciting, newdata=data$test)
+  nb.ok <- sum(prediction.rf == data$test$is_exciting)
+  nb.ko <- sum(prediction.rf != data$test$is_exciting)
+  
+  prc.ok <- nb.ok/nb.test
+  prc.ko <- nb.ko/nb.test
 
-table(data$test$at_least_1_teacher_referred_donor,
-      predict(model.at_least_1_teacher_referred_donor, newdata=data$test) > 0)
+  result <- rbind(
+    result,
+    data.frame(
+      nb.train=nb.train,
+      nb.test=nb.test,
+      nb.ok=nb.ok,
+      nb.ko=nb.ko,
+      prc.ok=prc.ok,
+      prc.ko=prc.ko
+      )
+    )
+  
+}
 
