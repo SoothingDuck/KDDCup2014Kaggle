@@ -18,3 +18,6 @@ db/*.sqlite3
 
 # sqlite3
 bin/*
+
+# submissions
+submissions/*.csv

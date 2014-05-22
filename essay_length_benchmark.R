@@ -64,7 +64,7 @@ dbDisconnect(con)
 set.data <- set.data[, colnames(set.data) != "row_names"]
 
 # All Data
-get.data.train.test <- function(nb.sample.all, nb.sample.test) {
+get.data.train.test.sample <- function(nb.sample.all, nb.sample.test) {
   all.data <- merge(set.data, essay.data, on=c("projectid"))
   
   train.data <- subset(all.data, typedataset == "train")
@@ -91,50 +91,37 @@ get.data.train.test <- function(nb.sample.all, nb.sample.test) {
 
 # Model
 library(randomForest)
+library(gbm)
 
-result <- data.frame()
+all.data <- merge(set.data, essay.data, on=c("projectid"))
 
-total.sizes <- c(5000, 10000, 50000, 100000, 200000)
-total.sizes <- c(10000, 20000, 30000, 40000, 50000, 60000)
-# total.sizes <- c(5000)
-nb.test <- 5000
-nb.total <- 5000
+train.data <- subset(all.data, typedataset == "train")
+test.data <- subset(all.data, typedataset == "test")
 
-for(nb.total in total.sizes) {
-  cat("Calcul pour taille", nb.total, "\n")
-  nb.train <- (nb.total - 1000)
-  data <- get.data.train.test(nb.total, nb.test)
-  
-  model.is_exciting <- randomForest(
-    is_exciting ~ 
-      title_length + 
+train.data <- merge(train.data, outcomes.data, on=c("projectid"))
+
+model.is_exciting <- gbm(
+    I(ifelse(is_exciting == "Yes", 1, 0)) ~
+      title_length +
       short_description_length +
-      need_statement_length +
       essay_length,
-    data=data$train,
-    do.trace=TRUE,
-    importance=FALSE,
-    ntree=200
-  )
-  
-  prediction.rf <- predict(model.is_exciting, newdata=data$test)
-  nb.ok <- sum(prediction.rf == data$test$is_exciting)
-  nb.ko <- sum(prediction.rf != data$test$is_exciting)
-  
-  prc.ok <- nb.ok/nb.test
-  prc.ko <- nb.ko/nb.test
-
-  result <- rbind(
-    result,
-    data.frame(
-      nb.train=nb.train,
-      nb.test=nb.test,
-      nb.ok=nb.ok,
-      nb.ko=nb.ko,
-      prc.ok=prc.ok,
-      prc.ko=prc.ko
-      )
+    data=train.data,
+    verbose=TRUE,
+    distribution="bernoulli",
+    cv.folds=5
     )
   
-}
+prediction <- predict(model.is_exciting, newdata=test.data)
 
+df <- data.frame(
+  projectid=test.data$projectid,
+  is_exciting=ifelse(prediction > 0, 1, 0),
+  stringsAsFactors=FALSE
+  )
+
+write.csv(
+  x=df, 
+  file.path("submissions","essay_length_benchmark_submission.csv"),
+  quote=FALSE,
+  row.names=FALSE
+  )
