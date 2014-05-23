@@ -34,21 +34,6 @@ from outcomes
 dbDisconnect(con)
 outcomes.data <- outcomes.data[, colnames(outcomes.data) != "row_names"]
 
-# outcomes.data <- subset(outcomes.data, at_least_1_teacher_referred_donor != "")
-# outcomes.data <- subset(outcomes.data, at_least_1_green_donation != "")
-# outcomes.data <- subset(outcomes.data, one_non_teacher_referred_donor_giving_100_plus != "")
-# outcomes.data <- subset(outcomes.data, donation_from_thoughtful_donor != "")
-# outcomes.data <- subset(outcomes.data, fully_funded != "")
-
-outcomes.data$is_exciting <- factor(ifelse(outcomes.data$is_exciting == "t", "Yes", "No"))
-outcomes.data$at_least_1_teacher_referred_donor <- factor(ifelse(outcomes.data$at_least_1_teacher_referred_donor == "t", "Yes", "No"))
-outcomes.data$fully_funded <- factor(ifelse(outcomes.data$fully_funded == "t", "Yes", "No"))
-outcomes.data$at_least_1_green_donation <- factor(ifelse(outcomes.data$at_least_1_green_donation == "t", "Yes", "No"))
-outcomes.data$great_chat <- factor(ifelse(outcomes.data$great_chat == "t", "Yes", "No"))
-outcomes.data$three_or_more_non_teacher_referred_donors <- factor(ifelse(outcomes.data$three_or_more_non_teacher_referred_donors == "t", "Yes", "No"))
-outcomes.data$one_non_teacher_referred_donor_giving_100_plus <- factor(ifelse(outcomes.data$one_non_teacher_referred_donor_giving_100_plus == "t", "Yes", "No"))
-outcomes.data$donation_from_thoughtful_donor <- factor(ifelse(outcomes.data$donation_from_thoughtful_donor == "t", "Yes", "No"))
-
 # Project data set
 drv <- dbDriver("SQLite")
 con <- dbConnect(drv, dbname=sqlitedb.filename)
@@ -77,10 +62,16 @@ projects.data <- dbGetQuery(
 dbDisconnect(con)
 projects.data <- projects.data[, colnames(projects.data) != "row_names"]
 
-# train and test set
+# toute les données
 all.data <- merge(set.data, essay.data, on=c("projectid"))
 all.data <- merge(all.data, projects.data, on=c("projectid"))
 
+rm(list=c("set.data","essay.data","projects.data"))
+
+# normalization
+
+
+# séparation train et test
 test.data <- subset(all.data, typedataset == "test")
 train.data <- subset(all.data, typedataset == "train")
 
