@@ -66,10 +66,11 @@ projects.data <- projects.data[, colnames(projects.data) != "row_names"]
 all.data <- merge(set.data, essay.data, on=c("projectid"))
 all.data <- merge(all.data, projects.data, on=c("projectid"))
 
-rm(list=c("set.data","essay.data","projects.data"))
-
 # normalization
+library(lubridate)
+all.data$typedataset <- factor(all.data$typedataset)
 
+all.data <- subset(all.data, students_reached < 1500)
 
 # séparation train et test
 test.data <- subset(all.data, typedataset == "test")
