@@ -213,9 +213,11 @@ model_1_rf_is_exciting <- randomForest(
     school_ncesid_status +
     #school_city_big +
     #school_district_big +
-    days_since_posted,
+    days_since_posted +
+    month_posted +
+    day_of_week_posted,
   data=train.data.sample,
-  ntree=100,
+  ntree=200,
   importance=TRUE,
   do.trace=TRUE
   )
