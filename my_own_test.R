@@ -134,3 +134,16 @@ train.data <- merge(train.data, outcomes.data, on=c("projectid"))
 # Ajustement train.data
 train.data <- subset(train.data, ! is.na(fulfillment_labor_materials))
 
+train.data$is_exciting <- factor(ifelse(train.data$is_exciting == "t", "Yes", "No"))
+
+train.data$at_least_1_teacher_referred_donor[train.data$at_least_1_teacher_referred_donor == ""] <- "Unknown"
+train.data$at_least_1_teacher_referred_donor[train.data$at_least_1_teacher_referred_donor == "t"] <- "Yes"
+train.data$at_least_1_teacher_referred_donor[train.data$at_least_1_teacher_referred_donor == "f"] <- "No"
+train.data$at_least_1_teacher_referred_donor <- factor(train.data$at_least_1_teacher_referred_donor)
+
+train.data$fully_funded <- factor(ifelse(train.data$fully_funded == "t", "Yes", "No"))
+
+train.data$at_least_1_green_donation[train.data$at_least_1_green_donation == ""] <- "Unknown"
+train.data$at_least_1_green_donation[train.data$at_least_1_green_donation == "t"] <- "Yes"
+train.data$at_least_1_green_donation[train.data$at_least_1_green_donation == "f"] <- "No"
+train.data$at_least_1_green_donation <- factor(train.data$at_least_1_green_donation)
