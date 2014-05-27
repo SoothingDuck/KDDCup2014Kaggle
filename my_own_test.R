@@ -147,3 +147,20 @@ train.data$at_least_1_green_donation[train.data$at_least_1_green_donation == ""]
 train.data$at_least_1_green_donation[train.data$at_least_1_green_donation == "t"] <- "Yes"
 train.data$at_least_1_green_donation[train.data$at_least_1_green_donation == "f"] <- "No"
 train.data$at_least_1_green_donation <- factor(train.data$at_least_1_green_donation)
+
+train.data$great_chat <- factor(ifelse(train.data$great_chat == "t", "Yes", "No"))
+
+train.data$three_or_more_non_teacher_referred_donors[train.data$three_or_more_non_teacher_referred_donors == ""] <- "Unknown"
+train.data$three_or_more_non_teacher_referred_donors[train.data$three_or_more_non_teacher_referred_donors == "t"] <- "Yes"
+train.data$three_or_more_non_teacher_referred_donors[train.data$three_or_more_non_teacher_referred_donors == "f"] <- "No"
+train.data$three_or_more_non_teacher_referred_donors <- factor(train.data$three_or_more_non_teacher_referred_donors)
+
+train.data$one_non_teacher_referred_donor_giving_100_plus[train.data$one_non_teacher_referred_donor_giving_100_plus == ""] <- "Unknown"
+train.data$one_non_teacher_referred_donor_giving_100_plus[train.data$one_non_teacher_referred_donor_giving_100_plus == "t"] <- "Yes"
+train.data$one_non_teacher_referred_donor_giving_100_plus[train.data$one_non_teacher_referred_donor_giving_100_plus == "f"] <- "No"
+train.data$one_non_teacher_referred_donor_giving_100_plus <- factor(train.data$one_non_teacher_referred_donor_giving_100_plus)
+
+train.data$donation_from_thoughtful_donor[train.data$donation_from_thoughtful_donor == ""] <- "Unknown"
+train.data$donation_from_thoughtful_donor[train.data$donation_from_thoughtful_donor == "t"] <- "Yes"
+train.data$donation_from_thoughtful_donor[train.data$donation_from_thoughtful_donor == "f"] <- "No"
+train.data$donation_from_thoughtful_donor <- factor(train.data$donation_from_thoughtful_donor)
