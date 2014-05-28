@@ -34,6 +34,36 @@ outcomes.data <- dbGetQuery(
 dbDisconnect(con)
 outcomes.data <- outcomes.data[, colnames(outcomes.data) != "row_names"]
 
+# Ressources data
+drv <- dbDriver("SQLite")
+con <- dbConnect(drv, dbname=sqlitedb.filename)
+ressources.data <- dbGetQuery(
+  con,
+  "
+  select
+  *
+  from ressources
+  "
+)                                         
+dbDisconnect(con)
+ressources.data <- ressources.data[, colnames(ressources.data) != "row_names"]
+
+
+# Donations data
+drv <- dbDriver("SQLite")
+con <- dbConnect(drv, dbname=sqlitedb.filename)
+donations.data <- dbGetQuery(
+  con,
+  "
+  select
+  *
+  from donations
+  "
+)                                         
+dbDisconnect(con)
+donations.data <- donations.data[, colnames(donations.data) != "row_names"]
+
+
 # Project data set
 drv <- dbDriver("SQLite")
 con <- dbConnect(drv, dbname=sqlitedb.filename)

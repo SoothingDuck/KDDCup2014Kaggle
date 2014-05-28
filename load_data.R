@@ -36,6 +36,7 @@ dbDisconnect(con)
 rm(list=c("outcomes.data"))
 gc(TRUE)
 
+# Projects
 print("Chargement données Projects")
 projects.data <- read.csv("DATA/projects.csv", header=TRUE, sep = ",", stringsAsFactors=FALSE)
 
@@ -54,7 +55,7 @@ dbDisconnect(con)
 rm(list=c("projects.data"))
 gc(TRUE)
 
-
+# Donations
 print("Chargement données Donations")
 donations.data <- read.csv("DATA/donations.csv", header=TRUE, sep = ",", stringsAsFactors=FALSE)
 
@@ -73,6 +74,24 @@ dbDisconnect(con)
 rm(list=c("donations.data"))
 gc(TRUE)
 
+# Resources
+print("Chargement données Resources")
+resources.data <- read.csv("DATA/resources.csv", header=TRUE, sep = ",", stringsAsFactors=FALSE)
+
+drv <- dbDriver("SQLite")
+con <- dbConnect(drv, dbname=sqlitedb.filename)
+
+print("Alimentation table resources")
+dbWriteTable(con, "resources", resources.data)
+
+print("Creation des indexes...")
+dbGetQuery(con, "create unique index ix_resources_resourceid on resources ( resourceid )")
+dbGetQuery(con, "create index ix_resources_projectid on resources ( projectid )")
+dbGetQuery(con, "create index ix_resources_vendorid on resources ( vendorid )")
+
+dbDisconnect(con)
+rm(list=c("resources.data"))
+gc(TRUE)
 
 print("Alimentation test set projects")
 drv <- dbDriver("SQLite")
