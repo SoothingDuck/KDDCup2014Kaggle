@@ -21,3 +21,7 @@ bin/*
 
 # submissions
 submissions/*.csv
+
+# temp
+tmp/*.RData
+

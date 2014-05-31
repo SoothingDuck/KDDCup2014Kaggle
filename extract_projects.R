@@ -61,11 +61,11 @@ projects.data <- subset(projects.data, days_since_posted <= 1500)
 
 projects.data$typedataset <- factor(projects.data$typedataset)
 projects.data$school_ncesid_status <- factor(ifelse(is.na(projects.data$school_ncesid), "NotAvailable", "Available"))
-projects.data$school_city_big <- factor(ifelse(
-  projects.data$school_city %in% names(which(prop.table(table(projects.data$school_city)) > 0.01)),
-  projects.data$school_city,
-  "SmallCity"
-))
+# projects.data$school_city_big <- factor(ifelse(
+#   projects.data$school_city %in% names(which(prop.table(table(projects.data$school_city)) > 0.01)),
+#   projects.data$school_city,
+#   "SmallCity"
+# ))
 
 projects.data$school_state <- factor(toupper(projects.data$school_state))
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
