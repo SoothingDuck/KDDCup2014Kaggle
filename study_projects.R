@@ -24,58 +24,73 @@ train.set <- projects.outcomes.data[-indices,]
 variable.cible <- c(
   "is_exciting",
   "at_least_1_teacher_referred_donor",
-  "fully_funded"
+  "fully_funded",
+  "at_least_1_green_donation",
+  "great_chat",
+  "three_or_more_non_teacher_referred_donors",
+  "one_non_teacher_referred_donor_giving_100_plus",
+  "donation_from_thoughtful_donor"
   )
+
 model.list <- list()
+model.list.filename <- file.path("tmp","model_random_forest_projects_outcomes.RData")
 
-
-
-xcols <- c(
-# "school_state",
-"school_metro",
-"school_charter",
-"school_magnet",
-"school_year_round",
-"school_nlns",
-"school_kipp",
-"school_charter_ready_promise",
-"teacher_prefix",
-"teacher_teach_for_america",
-"teacher_ny_teaching_fellow",
-"primary_focus_subject",
-"primary_focus_area",
-"resource_type",
-"poverty_level",
-"grade_level",
-"fulfillment_labor_materials",
-"students_reached",
-"eligible_double_your_impact_match",
-"eligible_almost_home_match",
-"school_ncesid_status",
-"total_price_excluding_optional_support",
-"total_price_including_optional_support",
-"days_since_posted",
-"month_posted",
-"day_of_week_posted"
-)
-
-ycol <- "is_exciting"
-
-library(randomForest)
-model.rf <- randomForest(
-  x=train.set[,xcols],
-  y=train.set[,ycol],
-  xtest=test.set[,xcols],
-  ytest=test.set[,ycol],
-  importance=TRUE,
-  do.trace=TRUE,
-  proximity=FALSE,
-  ntree=10
+i <- 0
+for(ycol in variable.cible) {
+  i <- i + 1
+  xcols <- c(
+    # "school_state",
+    "school_metro",
+    "school_charter",
+    "school_magnet",
+    "school_year_round",
+    "school_nlns",
+    "school_kipp",
+    "school_charter_ready_promise",
+    "teacher_prefix",
+    "teacher_teach_for_america",
+    "teacher_ny_teaching_fellow",
+    "primary_focus_subject",
+    "primary_focus_area",
+    "resource_type",
+    "poverty_level",
+    "grade_level",
+    "fulfillment_labor_materials",
+    "students_reached",
+    "eligible_double_your_impact_match",
+    "eligible_almost_home_match",
+    "school_ncesid_status",
+    "total_price_excluding_optional_support",
+    "total_price_including_optional_support",
+    "days_since_posted",
+    "month_posted",
+    "day_of_week_posted"
   )
+  
+  tmp.train <- train.set
+  tmp.test <- test.set
+  
+  if("Unknown" %in% levels(tmp.train[,ycol])) {
+    tmp.train <- subset(tmp.train, ycol != "Unknown")
+    tmp.train[,ycol] <- factor(tmp.train[,ycol])
+    tmp.test <- subset(tmp.test, ycol != "Unknown")
+    tmp.test[,ycol] <- factor(tmp.test[,ycol])
+  }
+  
+  library(randomForest)
+  model.rf <- randomForest(
+    x=tmp.train[,xcols],
+    y=tmp.train[,ycol],
+    xtest=tmp.test[,xcols],
+    ytest=tmp.test[,ycol],
+    importance=TRUE,
+    do.trace=TRUE,
+    proximity=FALSE,
+    keep.forest=TRUE,
+    ntree=100
+  )
+  
+  model.list[[ycol]] <- model.rf  
+}
 
-importance.model.rf <- model.rf$importance
-importance.No <- sort(importance.model.rf[,1], decreasing=TRUE)
-importance.Yes <- sort(importance.model.rf[,2], decreasing=TRUE)
-
-
-test.set$is_exciting_prediction <- predict(model.rf, newdata=test.set)
+save(model.list, file=model.list.filename)

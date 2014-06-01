@@ -50,5 +50,11 @@ outcomes.data$donation_from_thoughtful_donor[outcomes.data$donation_from_thought
 outcomes.data$donation_from_thoughtful_donor[outcomes.data$donation_from_thoughtful_donor == "f"] <- "No"
 outcomes.data$donation_from_thoughtful_donor <- factor(outcomes.data$donation_from_thoughtful_donor)
 
+outcomes.data$great_chat[outcomes.data$great_chat == ""] <- "Unknown"
+outcomes.data$great_chat[outcomes.data$great_chat == "t"] <- "Yes"
+outcomes.data$great_chat[outcomes.data$great_chat == "f"] <- "No"
+outcomes.data$great_chat <- factor(outcomes.data$great_chat)
+
+
 # Nettoyage
 rm(list=c("con", "drv", "sqlitedb.filename"))
