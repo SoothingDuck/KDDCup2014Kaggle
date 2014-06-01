@@ -71,9 +71,9 @@ for(ycol in variable.cible) {
   tmp.test <- test.set
   
   if("Unknown" %in% levels(tmp.train[,ycol])) {
-    tmp.train <- subset(tmp.train, ycol != "Unknown")
+    tmp.train <- tmp.train[tmp.train[,ycol] != "Unknown",]
     tmp.train[,ycol] <- factor(tmp.train[,ycol])
-    tmp.test <- subset(tmp.test, ycol != "Unknown")
+    tmp.test <- tmp.test[tmp.test[,ycol] != "Unknown",]
     tmp.test[,ycol] <- factor(tmp.test[,ycol])
   }
   
@@ -87,7 +87,7 @@ for(ycol in variable.cible) {
     do.trace=TRUE,
     proximity=FALSE,
     keep.forest=TRUE,
-    ntree=100
+    ntree=50
   )
   
   model.list[[ycol]] <- model.rf  
