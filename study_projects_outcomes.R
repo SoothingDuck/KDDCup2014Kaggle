@@ -32,8 +32,8 @@ variable.cible <- c(
   "donation_from_thoughtful_donor"
   )
 
-model.list <- list()
-model.list.filename <- file.path("tmp","model_random_forest_projects_outcomes.RData")
+model.list.projects.outcomes <- list()
+model.list.projects.outcomes.filename <- file.path("tmp","model_random_forest_projects_outcomes.RData")
 
 i <- 0
 for(ycol in variable.cible) {
@@ -90,7 +90,7 @@ for(ycol in variable.cible) {
     ntree=50
   )
   
-  model.list[[ycol]] <- model.rf  
+  model.list.projects.outcomes[[ycol]] <- model.rf  
 }
 
-save(model.list, file=model.list.filename)
+save(model.list.projects.outcomes, file=model.list.projects.outcomes.filename)
