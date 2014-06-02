@@ -4,7 +4,7 @@ sqlitedb.filename <- file.path("db", "kdd_cup_data.sqlite3")
 # Essays data
 drv <- dbDriver("SQLite")
 con <- dbConnect(drv, dbname=sqlitedb.filename)
-essay.data <- dbGetQuery(
+essays.data <- dbGetQuery(
   con,
   "
   select
@@ -17,4 +17,4 @@ essay.data <- dbGetQuery(
   "
 )                                         
 dbDisconnect(con)
-essay.data <- essay.data[, colnames(essay.data) != "row_names"]
+essays.data <- essays.data[, colnames(essays.data) != "row_names"]
