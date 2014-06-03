@@ -8,7 +8,15 @@ resources.data <- dbGetQuery(
   con,
   "
   select
-  *
+  resourceid as resourceid,
+  projectid as projectid,
+  vendorid as vendorid,
+  vendor_name as vendor_name,
+  project_resource_type,
+  item_name,
+  item_number,
+  case when item_unit_price is null then 0 else item_unit_price end as item_unit_price,
+  case when item_quantity is null then 0 else item_quantity end as item_quantity
   from resources
   "
 )                                         
@@ -26,7 +34,7 @@ resources.agg.data <- dbGetQuery(
   select
   projectid as projectid,
   project_resource_type as project_resource_type,
-  sum(item_unit_price*item_quantity) as total_price
+  sum(coalesce(item_unit_price,0)*coalesce(item_quantity,0)) as total_price
   from resources
   group by 1,2
   "
@@ -35,7 +43,7 @@ dbDisconnect(con)
 resources.agg.data <- resources.agg.data[, colnames(resources.agg.data) != "row_names"]
 
 library(reshape2)
-m <- melt(resources.agg.data, id.vars=c("projectid"))
+m <- melt(resources.agg.data, id.vars=c("projectid","project_resource_type"))
 m <- subset(m, project_resource_type != "")
 
 resources.by.type <- dcast(m, projectid ~ project_resource_type, sum, fill=0)
