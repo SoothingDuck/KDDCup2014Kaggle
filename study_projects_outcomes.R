@@ -1,20 +1,6 @@
+source("functions.R")
 
-projects.outcomes.filename <- file.path("tmp","projects_outcomes.RData")
-
-if(! file.exists(projects.outcomes.filename)) {
-  source("extract_projects.R")
-  source("extract_outcomes.R")
-  
-  projects.outcomes.data <- merge(projects.data, outcomes.data, on=c("projectid"))
-  save(projects.outcomes.data, file=file.path("tmp","projects_outcomes.RData"))
-  
-  rm(list=c("projects.data","outcomes.data"))
-}
-
-load(projects.outcomes.filename)
-
-# Exciting project repartition
-# ggplot(projects.outcomes.data) + geom_histogram(aes(x=days_since_posted, fill=is_exciting))
+projects.outcomes.data <- get.projects.data(force=TRUE, with.outcomes=TRUE)
 
 # test, train
 indices <- sample(1:nrow(projects.outcomes.data), .3*nrow(projects.outcomes.data))
@@ -32,40 +18,40 @@ variable.cible <- c(
   "donation_from_thoughtful_donor"
   )
 
+trash.vars <- c(
+  "teacher_referred_count",
+  "non_teacher_referred_count",
+  "great_messages_proportion",
+  "typedataset",
+  "projectid",
+  "school_district",
+  "school_zip",
+  "school_city",
+  "school_state",
+  "school_ncesid",
+  "teacher_acctid",
+  "schoolid",
+  "school_latitude",
+  "school_longitude",
+  "school_metro",
+  "school_county",
+  "secondary_focus_subject",
+  "secondary_focus_area",
+  "date_posted",
+  "school_district_big",
+  "school_ncesid_status"
+  )
+
+other.vars <- setdiff(names(projects.outcomes.data),variable.cible)
+other.vars <- setdiff(other.vars, trash.vars)
+xcols <- other.vars
+
 model.list.projects.outcomes <- list()
 model.list.projects.outcomes.filename <- file.path("tmp","model_random_forest_projects_outcomes.RData")
 
 i <- 0
 for(ycol in variable.cible) {
   i <- i + 1
-  xcols <- c(
-    # "school_state",
-    "school_metro",
-    "school_charter",
-    "school_magnet",
-    "school_year_round",
-    "school_nlns",
-    "school_kipp",
-    "school_charter_ready_promise",
-    "teacher_prefix",
-    "teacher_teach_for_america",
-    "teacher_ny_teaching_fellow",
-    "primary_focus_subject",
-    "primary_focus_area",
-    "resource_type",
-    "poverty_level",
-    "grade_level",
-    "fulfillment_labor_materials",
-    "students_reached",
-    "eligible_double_your_impact_match",
-    "eligible_almost_home_match",
-    "school_ncesid_status",
-    "total_price_excluding_optional_support",
-    "total_price_including_optional_support",
-    "days_since_posted",
-    "month_posted",
-    "day_of_week_posted"
-  )
   
   tmp.train <- train.set
   tmp.test <- test.set

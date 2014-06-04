@@ -7,7 +7,7 @@ auc <- function(y, predicted) {
   return(attr(perf, "y.values")[[1]])
 }
 
-get.projects.data <- function(force=FALSE) {
+get.projects.data <- function(force=FALSE, with.outcomes=FALSE) {
   
   projects.filename <- file.path("tmp","projects.RData")
   
@@ -62,10 +62,24 @@ get.projects.data <- function(force=FALSE) {
     
     projects.data <- merge(projects.data, agg, on=c("school_zip"))
     
+    agg <- ddply(projects.data,
+                 .(school_district),
+                 summarise,
+                 nb.projects.by.district=length(school_district)
+    )
+    
+    projects.data <- merge(projects.data, agg, on=c("school_district"))
+    
     save(projects.data, file=projects.filename)
   }
   
   load(projects.filename)
+  
+  if(with.outcomes) {
+    source("extract_outcomes.R")
+    
+    projects.data <- merge(projects.data, outcomes.data, on=c("projectid"))
+  }
   
   return(projects.data)
 }

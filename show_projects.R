@@ -1,6 +1,6 @@
 source("functions.R")
 
-projects.data <- get.projects.data()
+projects.data <- get.projects.data(force=TRUE)
 
 library(plyr)
 library(ggplot2)
@@ -60,3 +60,12 @@ agg <- ddply(projects.data,
              count=length(school_zip))
 
 ggplot(agg) + geom_density(aes(x=count, fill=typedataset))
+
+# Nb projects by School district
+agg <- ddply(projects.data,
+             .(school_district, typedataset),
+             summarise,
+             count=length(school_district))
+
+ggplot(agg) + geom_boxplot(aes(x=typedataset, y=count))
+
