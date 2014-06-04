@@ -1,16 +1,15 @@
-model.list.projects.outcomes.filename <- file.path("tmp","model_random_forest_projects_outcomes.RData")
-model.list.projects.outcomes.essays.filename <- file.path("tmp","model_random_forest_projects_outcomes_essays.RData")
+source("functions.R")
 
+model.list.projects.outcomes.filename <- file.path("tmp","model_random_forest_projects_outcomes.RData")
 load(model.list.projects.outcomes.filename)
-load(model.list.projects.outcomes.essays.filename)
 
 library(ggplot2)
 library(reshape2)
 
 result <- data.frame()
 
-for(variable in names(model.list.projects.outcomes.essays)) {
-  model <- model.list.projects.outcomes.essays[[variable]]
+for(variable in names(model.list.projects.outcomes)) {
+  model <- model.list.projects.outcomes[[variable]]
   imp <- data.frame(model$importance)
   imp$variable.name <- rownames(imp)
   imp$target.name <- variable
@@ -28,3 +27,24 @@ ggplot(subset(result, variable == "Yes")) +
         axis.ticks = element_blank(), 
         axis.text.x = element_text(size=8, angle = 90,  colour = "grey50"))
 
+ggplot(subset(result, variable == "No")) + 
+  geom_tile(aes(x=target.name,y=variable.name, fill=value), colour="white") +
+  scale_fill_gradient(low = "white",high = "steelblue") +
+  theme(legend.position = "none", 
+        axis.ticks = element_blank(), 
+        axis.text.x = element_text(size=8, angle = 90,  colour = "grey50"))
+
+ggplot(subset(result, variable == "MeanDecreaseAccuracy")) + 
+  geom_tile(aes(x=target.name,y=variable.name, fill=value), colour="white") +
+  scale_fill_gradient(low = "white",high = "steelblue") +
+  theme(legend.position = "none", 
+        axis.ticks = element_blank(), 
+        axis.text.x = element_text(size=8, angle = 90,  colour = "grey50"))
+
+
+ggplot(subset(result, variable == "MeanDecreaseGini")) + 
+  geom_tile(aes(x=target.name,y=variable.name, fill=value), colour="white") +
+  scale_fill_gradient(low = "white",high = "steelblue") +
+  theme(legend.position = "none", 
+        axis.ticks = element_blank(), 
+        axis.text.x = element_text(size=8, angle = 90,  colour = "grey50"))
