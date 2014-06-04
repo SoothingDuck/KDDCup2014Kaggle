@@ -115,5 +115,9 @@ projects.data$eligible_almost_home_match <- factor(ifelse(projects.data$eligible
 projects.data$month_posted <- factor(month(projects.data$date_posted))
 projects.data$day_of_week_posted <- factor(weekdays(projects.data$date_posted))
 
+# truncation
+projects.data <- subset(projects.data, students_reached < 1100)
+projects.data <- subset(projects.data, total_price_including_optional_support < 50000)
+
 # Nettoyage
 rm(list=c("con", "drv", "sqlitedb.filename"))
