@@ -1,5 +1,7 @@
 library(ROCR)
 library(plyr)
+library(gbm)
+library(randomForest)
 
 auc <- function(y, predicted) {
   pred <- prediction(predictions=predicted, labels=ifelse(y == "Yes",1,0))
