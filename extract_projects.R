@@ -55,10 +55,9 @@ dbDisconnect(con)
 library(lubridate)
 projects.data$date_posted <- ymd(projects.data$date_posted)
 projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data$date_posted)/(3600*24))
-projects.data <- subset(projects.data, days_since_posted <= 1500)
+# projects.data <- subset(projects.data, days_since_posted <= 1500)
 
 # normalization
-
 projects.data$typedataset <- factor(projects.data$typedataset)
 projects.data$school_ncesid_status <- factor(ifelse(is.na(projects.data$school_ncesid), "NotAvailable", "Available"))
 # projects.data$school_city_big <- factor(ifelse(
@@ -69,11 +68,11 @@ projects.data$school_ncesid_status <- factor(ifelse(is.na(projects.data$school_n
 
 projects.data$school_state <- factor(toupper(projects.data$school_state))
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
-projects.data$school_district_big <- factor(ifelse(
-  projects.data$school_district %in% names(which(prop.table(table(projects.data$school_district)) > 0.01)),
-  projects.data$school_district,
-  "SmallDistrict"
-))
+# projects.data$school_district_big <- factor(ifelse(
+#   projects.data$school_district %in% names(which(prop.table(table(projects.data$school_district)) > 0.01)),
+#   projects.data$school_district,
+#   "SmallDistrict"
+# ))
 
 projects.data$school_charter <- factor(ifelse(projects.data$school_charter == "t", "Yes", "No"))
 projects.data$school_magnet <- factor(ifelse(projects.data$school_magnet == "t", "Yes", "No"))
@@ -90,21 +89,21 @@ projects.data$teacher_prefix <- factor(projects.data$teacher_prefix)
 projects.data$teacher_teach_for_america <- factor(ifelse(projects.data$teacher_teach_for_america == "t", "Yes", "No"))
 projects.data$teacher_ny_teaching_fellow <- factor(ifelse(projects.data$teacher_ny_teaching_fellow == "t", "Yes", "No"))
 
-projects.data$primary_focus_subject[projects.data$primary_focus_subject == ""] <- "Literacy"
+# projects.data$primary_focus_subject[projects.data$primary_focus_subject == ""] <- "Literacy"
 projects.data$primary_focus_subject <- factor(projects.data$primary_focus_subject)
 
-projects.data$primary_focus_area[projects.data$primary_focus_area == ""] <- "Literacy & Language"
+# projects.data$primary_focus_area[projects.data$primary_focus_area == ""] <- "Literacy & Language"
 projects.data$primary_focus_area <- factor(projects.data$primary_focus_area)
 
 projects.data$secondary_focus_subject <- factor(projects.data$secondary_focus_subject)
 projects.data$secondary_focus_area <- factor(projects.data$secondary_focus_area)
 
-projects.data$resource_type[projects.data$resource_type == ""] <- "Supplies"
+# projects.data$resource_type[projects.data$resource_type == ""] <- "Supplies"
 projects.data$resource_type <- factor(projects.data$resource_type)
 
 projects.data$poverty_level <- factor(projects.data$poverty_level)
 
-projects.data$grade_level[projects.data$grade_level == ""] <- "Grades PreK-2"
+# projects.data$grade_level[projects.data$grade_level == ""] <- "Grades PreK-2"
 projects.data$grade_level <- factor(projects.data$grade_level)
 
 projects.data$students_reached <- ifelse(is.na(projects.data$students_reached), 30.0, projects.data$students_reached)
@@ -114,6 +113,9 @@ projects.data$eligible_almost_home_match <- factor(ifelse(projects.data$eligible
 
 projects.data$month_posted <- factor(month(projects.data$date_posted))
 projects.data$day_of_week_posted <- factor(weekdays(projects.data$date_posted))
+
+projects.data$fulfillment_labor_materials <- factor(projects.data$fulfillment_labor_materials)
+
 
 agg <- ddply(projects.data,
              .(schoolid),
