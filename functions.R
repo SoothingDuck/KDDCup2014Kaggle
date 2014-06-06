@@ -2,7 +2,7 @@ library(ROCR)
 library(plyr)
 
 auc <- function(y, predicted) {
-  pred <- prediction(ifelse(predicted == "Yes",1,0), ifelse(y == "Yes",1,0))
+  pred <- prediction(predictions=predicted, labels=ifelse(y == "Yes",1,0))
   perf <- performance(pred, measure = "auc")
   return(attr(perf, "y.values")[[1]])
 }
@@ -159,4 +159,13 @@ get.gbm.model <- function(xtrain, ytrain, ...) {
   
   return(model)
   
+}
+
+split.train.test <- function(data, percent.train=.7) {
+  indices.train <- sample(1:nrow(data), size=nrow(data)*percent.train)
+  
+  train.data <- data[indices.train,]
+  test.data <- data[-indices.train,]
+  
+  return(list(train=train.data, test=test.data))
 }
