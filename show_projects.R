@@ -69,3 +69,10 @@ agg <- ddply(projects.data,
 
 ggplot(agg) + geom_boxplot(aes(x=typedataset, y=count))
 
+# Nb projects by School county
+agg <- ddply(projects.data,
+             .(school_county, typedataset),
+             summarise,
+             count=length(school_county))
+
+ggplot(agg) + geom_boxplot(aes(x=typedataset, y=count))

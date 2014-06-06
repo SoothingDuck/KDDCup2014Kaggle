@@ -115,9 +115,70 @@ projects.data$eligible_almost_home_match <- factor(ifelse(projects.data$eligible
 projects.data$month_posted <- factor(month(projects.data$date_posted))
 projects.data$day_of_week_posted <- factor(weekdays(projects.data$date_posted))
 
-# truncation
-projects.data <- subset(projects.data, students_reached < 1100)
-projects.data <- subset(projects.data, total_price_including_optional_support < 50000)
+agg <- ddply(projects.data,
+             .(schoolid),
+             summarise,
+             nb.projects.for.school=length(schoolid))
+
+projects.data <- merge(projects.data, agg, on=c("schoolid"))
+
+agg <- ddply(projects.data,
+             .(teacher_acctid),
+             summarise,
+             nb.projects.for.teacher=length(teacher_acctid))
+
+projects.data <- merge(projects.data, agg, on=c("teacher_acctid"))
+
+agg <- ddply(subset(projects.data, ! is.na(school_ncesid)),
+             .(school_ncesid),
+             summarise,
+             nb.distinct.school.by.ncesid=length(unique(schoolid))
+)
+
+projects.data <- merge(projects.data, agg, on=c("school_ncesid"), all.x = TRUE)
+projects.data$nb.distinct.school.by.ncesid <- with(projects.data, factor(ifelse(is.na(nb.distinct.school.by.ncesid), 1, nb.distinct.school.by.ncesid)))
+
+agg <- ddply(projects.data,
+             .(school_state),
+             summarise,
+             nb.projects.by.state=length(school_state)
+)
+
+projects.data <- merge(projects.data, agg, on=c("school_state"))
+
+agg <- ddply(projects.data,
+             .(school_city),
+             summarise,
+             nb.projects.by.city=length(school_city)
+)
+
+projects.data <- merge(projects.data, agg, on=c("school_city"))
+
+projects.data <- subset(projects.data, ! is.na(school_zip))
+agg <- ddply(projects.data,
+             .(school_zip),
+             summarise,
+             nb.projects.by.zip=length(school_zip)
+)
+
+projects.data <- merge(projects.data, agg, on=c("school_zip"))
+
+agg <- ddply(projects.data,
+             .(school_district),
+             summarise,
+             nb.projects.by.district=length(school_district)
+)
+
+projects.data <- merge(projects.data, agg, on=c("school_district"))
+
+agg <- ddply(projects.data,
+             .(school_county),
+             summarise,
+             nb.projects.by.county=length(school_county)
+)
+
+projects.data <- merge(projects.data, agg, on=c("school_county"))
+
 
 # Nettoyage
 rm(list=c("con", "drv", "sqlitedb.filename"))
