@@ -118,17 +118,6 @@ get.numeric.vars <- function() {
   
 }
 
-get.gbm.model <- function(xcols, ycol, ...) {
-  xtrain <- get.projects.data.train(variable=ycol)
-  ytrain <- xtrain[,ycol]
-  xtrain <- xtrain[,xcols]
-  
-  model <- gbm.fit(x=xtrain, y=ytrain, verbose=TRUE, ...)
-  
-  return(model)
-  
-}
-
 get.projects.data.train <- function(force=FALSE, variable=NULL) {
   
   projects.data <- get.projects.data(force=force, with.outcomes=TRUE)
@@ -142,11 +131,32 @@ get.projects.data.train <- function(force=FALSE, variable=NULL) {
   } else {
     if(variable %in% outcomes.cols) {
       projects.data <- projects.data[! is.na(projects.data[,c(variable)]),]
-      projects.data <- projects.data[,setdiff(outcomes.cols, c(variable))]
+      projects.data <- projects.data[,setdiff(names(projects.data),setdiff(outcomes.cols, c(variable)))]
       return(projects.data)
     } else {
       stop(variable)
     }
   }
+  
+}
+
+
+get.gbm.model.cols <- function(xcols, ycol, ...) {
+  xtrain <- get.projects.data.train(variable=ycol)
+  ytrain <- ifelse(xtrain[,ycol] == "Yes", 1.0, 0.0)
+  xtrain <- xtrain[,xcols]
+  
+  model <- gbm.fit(x=xtrain, y=ytrain, verbose=TRUE, ...)
+  
+  return(model)
+  
+}
+
+get.gbm.model <- function(xtrain, ytrain, ...) {
+  ytrain <- ifelse(ytrain == "Yes", 1.0, 0.0)
+  
+  model <- gbm.fit(x=xtrain, y=ytrain, verbose=TRUE, ...)
+  
+  return(model)
   
 }
