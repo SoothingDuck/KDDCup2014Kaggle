@@ -1,7 +1,5 @@
 source("functions.R")
 
-projects.train <- get.projects.data.train(force=TRUE)
-
 cat.cols <- get.categorical.vars()
 num.cols <- get.numeric.vars()
 
@@ -46,3 +44,31 @@ model.at_least_1_teacher_referred_donor <- get.gbm.model(
 
 prediction.at_least_1_teacher_referred_donor <- predict(model.at_least_1_teacher_referred_donor, newdata=projects.train.at_least_1_teacher_referred_donor$test[,all.cols], n.trees=100, type="response")
 cat("auc at_least_1_teacher_referred_donor :", auc(y=projects.train.at_least_1_teacher_referred_donor$test[,c("at_least_1_teacher_referred_donor")],predicted=prediction.at_least_1_teacher_referred_donor), "\n")
+
+
+# fully_funded
+projects.train.fully_funded.all <- get.projects.data.train(force=FALSE, variable="fully_funded")
+
+projects.train.fully_funded <- split.train.test(projects.train.fully_funded.all)
+
+model.fully_funded <- get.gbm.model(
+  xtrain=projects.train.fully_funded$train[,all.cols], 
+  ytrain=projects.train.fully_funded$train[,c("fully_funded")], 
+  shrinkage = 1.0)
+
+prediction.fully_funded <- predict(model.fully_funded, newdata=projects.train.fully_funded$test[,all.cols], n.trees=100, type="response")
+cat("auc fully_funded :", auc(y=projects.train.fully_funded$test[,c("fully_funded")],predicted=prediction.fully_funded), "\n")
+
+
+# at_least_1_green_donation
+projects.train.at_least_1_green_donation.all <- get.projects.data.train(force=FALSE, variable="at_least_1_green_donation")
+
+projects.train.at_least_1_green_donation <- split.train.test(projects.train.at_least_1_green_donation.all)
+
+model.at_least_1_green_donation <- get.gbm.model(
+  xtrain=projects.train.at_least_1_green_donation$train[,all.cols], 
+  ytrain=projects.train.at_least_1_green_donation$train[,c("at_least_1_green_donation")], 
+  shrinkage = 1.0)
+
+prediction.at_least_1_green_donation <- predict(model.at_least_1_green_donation, newdata=projects.train.at_least_1_green_donation$test[,all.cols], n.trees=100, type="response")
+cat("auc at_least_1_green_donation :", auc(y=projects.train.at_least_1_green_donation$test[,c("at_least_1_green_donation")],predicted=prediction.at_least_1_green_donation), "\n")
