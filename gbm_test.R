@@ -32,12 +32,6 @@ projects.train.at_least_1_teacher_referred_donor.all <- subset(projects.train.at
 
 projects.train.at_least_1_teacher_referred_donor <- split.train.test(projects.train.at_least_1_teacher_referred_donor.all)
 
-model.at_least_1_teacher_referred_donor.cols <- get.gbm.model.cols(
-  xcols=all.cols,
-  ycol="at_least_1_teacher_referred_donor",
-  shrinkage = 1.0
-)
-
 model.at_least_1_teacher_referred_donor <- get.gbm.model(
   xtrain=projects.train.at_least_1_teacher_referred_donor$train[,all.cols], 
   ytrain=projects.train.at_least_1_teacher_referred_donor$train[,c("at_least_1_teacher_referred_donor")], 
@@ -167,4 +161,4 @@ result.auc <- rbind(result.auc,
                       auc=auc(y=projects.train.donation_from_thoughtful_donor$test[,c("donation_from_thoughtful_donor")],predicted=prediction.donation_from_thoughtful_donor)
                     ))
 
-
+write.csv(x=result.auc, file=file.path("tmp","result_auc.csv"))
