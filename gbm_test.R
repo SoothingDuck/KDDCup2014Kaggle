@@ -8,6 +8,8 @@ all.cols <- union(cat.cols, num.cols)
 result.auc <- data.frame()
 
 # is.exciting
+model.filename <- file.path("tmp","model_is_exciting.RData")
+
 projects.train.is.exciting.all <- get.projects.data.train(force=FALSE, variable="is_exciting")
 projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 1350)
 
@@ -17,6 +19,7 @@ model.is.exciting <- get.gbm.model(
   xtrain=projects.train.is.exciting$train[,all.cols], 
   ytrain=projects.train.is.exciting$train[,c("is_exciting")], 
   shrinkage = 1.0)
+save(model.is.exciting, file=model.filename)
 
 prediction.is.exciting <- predict(model.is.exciting, newdata=projects.train.is.exciting$test[,all.cols], n.trees=100, type="response")
 cat("auc is_exciting :", auc(y=projects.train.is.exciting$test[,c("is_exciting")],predicted=prediction.is.exciting), "\n")
@@ -47,6 +50,8 @@ result.auc <- rbind(result.auc,
 
 
 # fully_funded
+model.filename <- file.path("tmp","model_fully_funded.RData")
+
 projects.train.fully_funded.all <- get.projects.data.train(force=FALSE, variable="fully_funded")
 
 projects.train.fully_funded <- split.train.test(projects.train.fully_funded.all)
@@ -54,7 +59,8 @@ projects.train.fully_funded <- split.train.test(projects.train.fully_funded.all)
 model.fully_funded <- get.gbm.model(
   xtrain=projects.train.fully_funded$train[,all.cols], 
   ytrain=projects.train.fully_funded$train[,c("fully_funded")], 
-  shrinkage = 1.0)
+  shrinkage = 0.2)
+save(model.fully_funded, file=model.filename)
 
 prediction.fully_funded <- predict(model.fully_funded, newdata=projects.train.fully_funded$test[,all.cols], n.trees=100, type="response")
 cat("auc fully_funded :", auc(y=projects.train.fully_funded$test[,c("fully_funded")],predicted=prediction.fully_funded), "\n")
