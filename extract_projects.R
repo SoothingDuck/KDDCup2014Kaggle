@@ -68,11 +68,13 @@ projects.data$school_ncesid_status <- factor(ifelse(is.na(projects.data$school_n
 
 projects.data$school_state <- factor(toupper(projects.data$school_state))
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
-# projects.data$school_district_big <- factor(ifelse(
-#   projects.data$school_district %in% names(which(prop.table(table(projects.data$school_district)) > 0.01)),
-#   projects.data$school_district,
-#   "SmallDistrict"
-# ))
+
+# school_district
+t <- data.frame(table(projects.data$school_district), stringsAsFactors=FALSE)
+t <- t[order(-t$Freq),]
+t.vars <- as.character(t$Var1[1:500])
+projects.data$school_district_factor <- factor(ifelse(projects.data$school_district %in% t.vars, projects.data$school_district, "SmallDistrict"))
+# fin school_district
 
 projects.data$school_charter <- factor(ifelse(projects.data$school_charter == "t", "Yes", "No"))
 projects.data$school_magnet <- factor(ifelse(projects.data$school_magnet == "t", "Yes", "No"))
@@ -181,6 +183,8 @@ agg <- ddply(projects.data,
 
 projects.data <- merge(projects.data, agg, on=c("school_county"))
 
+# diff price
+projects.data$total_price_optional_support <- with(projects.data, total_price_including_optional_support-total_price_excluding_optional_support)
 
 # Nettoyage
 rm(list=c("con", "drv", "sqlitedb.filename"))

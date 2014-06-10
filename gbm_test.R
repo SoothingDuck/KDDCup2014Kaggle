@@ -1,10 +1,6 @@
 source("functions.R")
 
-cat.cols <- get.categorical.vars()
-num.cols <- get.numeric.vars()
-
-all.cols <- union(cat.cols, num.cols)
-
+all.cols <- get.all.variables()
 result.auc <- data.frame()
 
 # is.exciting
@@ -15,10 +11,13 @@ projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_si
 
 projects.train.is.exciting <- split.train.test(projects.train.is.exciting.all)
 
+
 model.is.exciting <- get.gbm.model(
   xtrain=projects.train.is.exciting$train[,all.cols], 
   ytrain=projects.train.is.exciting$train[,c("is_exciting")], 
-  shrinkage = 1.0)
+  shrinkage = .05,
+  n.trees=200)
+
 save(model.is.exciting, file=model.filename)
 
 prediction.is.exciting <- predict(model.is.exciting, newdata=projects.train.is.exciting$test[,all.cols], n.trees=100, type="response")

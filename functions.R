@@ -9,17 +9,29 @@ auc <- function(y, predicted) {
   return(attr(perf, "y.values")[[1]])
 }
 
+
+init.data <- function() {
+  source("extract_projects.R")
+  source("extract_essays.R")
+  source("extract_resources.R")
+  
+  projects.data <- merge(projects.data, essays.data, by=c("projectid"))
+  projects.data <- merge(projects.data, resources.by.type, by=c("projectid"))
+  
+  return(projects.data)
+}
+
 get.projects.data <- function(force=FALSE, with.outcomes=FALSE) {
   
   if(with.outcomes) {
     projects.filename <- file.path("tmp","projects_with_outcomes.RData")
     
     if((! file.exists(projects.filename)) | force) {
-      source("extract_projects.R")
+      projects.data <- init.data()
+      
       source("extract_outcomes.R")
-      
       projects.data <- merge(projects.data, outcomes.data, on=c("projectid"))
-      
+            
       save(projects.data, file=projects.filename)
     }
     
@@ -29,7 +41,7 @@ get.projects.data <- function(force=FALSE, with.outcomes=FALSE) {
     projects.filename <- file.path("tmp","projects_without_outcomes.RData")
     
     if((! file.exists(projects.filename)) | force) {
-      source("extract_projects.R")
+      projects.data <- init.data()
       
       save(projects.data, file=projects.filename)
     }
@@ -50,6 +62,29 @@ get.projects.data.test <- function(force=FALSE) {
   return(projects.data)
 }
 
+get.projects.data.train <- function(force=FALSE, variable=NULL) {
+  
+  projects.data <- get.projects.data(force=force, with.outcomes=TRUE)
+  projects.data <- subset(projects.data, typedataset == "train")
+  projects.data <- projects.data[,colnames(projects.data) != "typedataset"]
+  
+  outcomes.cols <- get.train.columns()
+  
+  if(is.null(variable)) {
+    return(projects.data)    
+  } else {
+    if(variable %in% outcomes.cols) {
+      projects.data <- projects.data[! is.na(projects.data[,c(variable)]),]
+      projects.data <- projects.data[,setdiff(names(projects.data),setdiff(outcomes.cols, c(variable)))]
+      return(projects.data)
+    } else {
+      stop(variable)
+    }
+  }
+  
+}
+
+
 get.train.columns <- function() {
   return(c(
     "is_exciting",
@@ -66,7 +101,7 @@ get.train.columns <- function() {
   ))
 }
 
-get.categorical.vars <- function() {
+get.project.variables <- function() {
   
   return(
     c(
@@ -94,16 +129,7 @@ get.categorical.vars <- function() {
       "school_ncesid_status",
       "month_posted",
       "day_of_week_posted",
-      "nb.distinct.school.by.ncesid"
-      )
-    )
-  
-}
-
-get.numeric.vars <- function() {
-  
-  return(
-    c(
+      "nb.distinct.school.by.ncesid",
       "total_price_excluding_optional_support",
       "total_price_including_optional_support",
       "students_reached",
@@ -114,45 +140,54 @@ get.numeric.vars <- function() {
       "nb.projects.by.city",
       "nb.projects.by.zip",
       "nb.projects.by.district",
-      "nb.projects.by.county"
+      "nb.projects.by.county",
+      "school_district_factor",
+      "total_price_optional_support"
+      )
+    )
+  
+}
+
+get.essay.variables <- function() {
+  
+  return(
+    c(
+      "title_length",
+      "short_description_length",
+      "need_statement_length",
+      "essay_length"
     )
   )
   
 }
 
-get.projects.data.train <- function(force=FALSE, variable=NULL) {
+get.resource.variables <- function() {
   
-  projects.data <- get.projects.data(force=force, with.outcomes=TRUE)
-  projects.data <- subset(projects.data, typedataset == "train")
-  projects.data <- projects.data[,colnames(projects.data) != "typedataset"]
-  
-  outcomes.cols <- get.train.columns()
-  
-  if(is.null(variable)) {
-    return(projects.data)    
-  } else {
-    if(variable %in% outcomes.cols) {
-      projects.data <- projects.data[! is.na(projects.data[,c(variable)]),]
-      projects.data <- projects.data[,setdiff(names(projects.data),setdiff(outcomes.cols, c(variable)))]
-      return(projects.data)
-    } else {
-      stop(variable)
-    }
-  }
+  return(
+    c(
+      "Books",
+      "Other",
+      "Supplies",
+      "Technology",
+      "Trips",
+      "Visitors"
+    )
+  )
   
 }
 
+get.all.variables <- function() {
 
-get.gbm.model.cols <- function(xcols, ycol, ...) {
-  xtrain <- get.projects.data.train(variable=ycol)
-  ytrain <- ifelse(xtrain[,ycol] == "Yes", 1.0, 0.0)
-  xtrain <- xtrain[,xcols]
+  vars <- c()
   
-  model <- gbm.fit(x=xtrain, y=ytrain, verbose=TRUE, ...)
+  vars <- union(vars, get.project.variables())
+  vars <- union(vars, get.essay.variables())
+  vars <- union(vars, get.resource.variables())
   
-  return(model)
+  return(vars)
   
 }
+
 
 get.gbm.model <- function(xtrain, ytrain, ...) {
   ytrain <- ifelse(ytrain == "Yes", 1.0, 0.0)

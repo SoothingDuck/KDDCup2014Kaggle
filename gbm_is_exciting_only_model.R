@@ -1,8 +1,6 @@
 source("functions.R")
 
-cat.cols <- get.categorical.vars()
-num.cols <- get.numeric.vars()
-all.cols <- union(cat.cols, num.cols)
+all.cols <- get.all.variables()
 
 # is.exciting
 model.filename <- file.path("tmp","model_is_exciting.RData")
@@ -20,25 +18,6 @@ model.is.exciting <- get.gbm.model(
 df <- data.frame(summary(model.is.exciting), stringsAsFactor=FALSE)
 important.cols <- as.character(df$var[df$rel.inf > 0.0])
 
-# with essays
-source("extract_essays.R")
-
-projects.train.is.exciting.all <- get.projects.data.train(force=FALSE, variable="is_exciting")
-projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 1350)
-
-projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, essays.data, by=c("projectid"))
-
-essays.col <- names(essays.data)[names(essays.data) != "projectid"]
-
-projects.train.is.exciting <- split.train.test(projects.train.is.exciting.all)
-
-model.cols <- union(important.cols, essays.col)
-
-model.is.exciting.essays <- get.gbm.model(
-  xtrain=projects.train.is.exciting$train[,model.cols], 
-  ytrain=projects.train.is.exciting$train[,c("is_exciting")], 
-  shrinkage = 1.0)
-
 # model on everything
 model.is.exciting.essays <- get.gbm.model(
   xtrain=projects.train.is.exciting.all[,model.cols], 
@@ -47,7 +26,7 @@ model.is.exciting.essays <- get.gbm.model(
   n.trees = 200)
 
 # valider une soumission
-test.data <- get.projects.data.test(force=FALSE)
+test.data <- get.projects.data.test(force=TRUE)
 test.data <- merge(test.data, essays.data, by=c("projectid"))
 
 prediction <- predict(model.is.exciting.essays, newdata=test.data[,model.cols],n.trees=200, type="response")
@@ -60,7 +39,7 @@ df <- data.frame(
 
 write.csv(
   x=df, 
-  file=file.path("tmp","gbm_submission_with_essays.csv"),
+  file=file.path("tmp","gbm_submission_is_exciting_only_model.csv"),
   row.names=FALSE,
   quote=FALSE
   )
