@@ -47,4 +47,20 @@ model.is.exciting.essays <- get.gbm.model(
   n.trees = 200)
 
 # valider une soumission
+test.data <- get.projects.data.test(force=FALSE)
+test.data <- merge(test.data, essays.data, by=c("projectid"))
 
+prediction <- predict(model.is.exciting.essays, newdata=test.data[,model.cols],n.trees=200, type="response")
+
+df <- data.frame(
+  projectid=test.data$projectid,
+  is_exciting=prediction,
+  stringsAsFactors=FALSE
+  )
+
+write.csv(
+  x=df, 
+  file=file.path("tmp","gbm_submission_with_essays.csv"),
+  row.names=FALSE,
+  quote=FALSE
+  )
