@@ -15,8 +15,8 @@ init.data <- function() {
   source("extract_essays.R")
   source("extract_resources.R")
   
-  projects.data <- merge(projects.data, essays.data, by=c("projectid"))
-  projects.data <- merge(projects.data, resources.by.type, by=c("projectid"))
+  projects.data <- merge(projects.data, essays.data, by=c("projectid"), all.x=TRUE)
+  projects.data <- merge(projects.data, resources.by.type, by=c("projectid"), all.x=TRUE)
   
   return(projects.data)
 }
@@ -58,6 +58,13 @@ get.projects.data.test <- function(force=FALSE) {
   projects.data <- subset(projects.data, typedataset == "test")
   
   projects.data <- projects.data[,colnames(projects.data) != "typedataset"]
+  
+  projects.data$Books[is.na(projects.data$Books)] <- 0
+  projects.data$Other[is.na(projects.data$Other)] <- 0
+  projects.data$Supplies[is.na(projects.data$Supplies)] <- 0
+  projects.data$Technology[is.na(projects.data$Technology)] <- 0
+  projects.data$Trips[is.na(projects.data$Trips)] <- 0
+  projects.data$Visitors[is.na(projects.data$Visitors)] <- 0
   
   return(projects.data)
 }
@@ -101,50 +108,56 @@ get.train.columns <- function() {
   ))
 }
 
-get.project.variables <- function() {
+get.project.variables <- function(data) {
   
-  return(
-    c(
-      "school_state",
-      "school_metro",
-      "school_charter",
-      "school_magnet",
-      "school_year_round",
-      "school_nlns",
-      "school_kipp",
-      "school_charter_ready_promise",
-      "teacher_prefix",
-      "teacher_teach_for_america",
-      "teacher_ny_teaching_fellow",
-      "primary_focus_subject",
-      "primary_focus_area",
-      "secondary_focus_subject",
-      "secondary_focus_area",
-      "resource_type",
-      "poverty_level",
-      "grade_level",
-      "fulfillment_labor_materials",
-      "eligible_double_your_impact_match",
-      "eligible_almost_home_match",
-      "school_ncesid_status",
-      "month_posted",
-      "day_of_week_posted",
-      "nb.distinct.school.by.ncesid",
-      "total_price_excluding_optional_support",
-      "total_price_including_optional_support",
-      "students_reached",
-      "days_since_posted",
-      "nb.projects.for.school",
-      "nb.projects.for.teacher",
-      "nb.projects.by.state",
-      "nb.projects.by.city",
-      "nb.projects.by.zip",
-      "nb.projects.by.district",
-      "nb.projects.by.county",
-      "school_district_factor",
-      "total_price_optional_support"
-      )
-    )
+  tmp <- c()
+  
+  tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
+  
+  tmp <- union(tmp, c(
+    # "school_state",
+    "school_metro",
+    "school_charter",
+    "school_magnet",
+    "school_year_round",
+    "school_nlns",
+    "school_kipp",
+    "school_charter_ready_promise",
+    "teacher_prefix",
+    "teacher_teach_for_america",
+    "teacher_ny_teaching_fellow",
+    "primary_focus_subject",
+    "primary_focus_area",
+    "secondary_focus_subject",
+    "secondary_focus_area",
+    "resource_type",
+    "poverty_level",
+    "grade_level",
+    "fulfillment_labor_materials",
+    "eligible_double_your_impact_match",
+    "eligible_almost_home_match",
+    "school_ncesid_status",
+    "month_posted",
+    "year_posted",
+    "day_of_week_posted",
+    "nb.distinct.school.by.ncesid",
+    "total_price_excluding_optional_support",
+    "total_price_including_optional_support",
+    "students_reached",
+    "days_since_posted",
+    "nb.projects.for.school",
+    "nb.projects.for.teacher",
+    "nb.projects.by.state",
+    "nb.projects.by.city",
+    "nb.projects.by.zip",
+    "nb.projects.by.district",
+    "nb.projects.by.county",
+    # "school_district_factor",
+    "total_price_optional_support"
+  )
+  )
+  
+  return(tmp)
   
 }
 
@@ -176,11 +189,11 @@ get.resource.variables <- function() {
   
 }
 
-get.all.variables <- function() {
+get.all.variables <- function(data) {
 
   vars <- c()
   
-  vars <- union(vars, get.project.variables())
+  vars <- union(vars, get.project.variables(data))
   vars <- union(vars, get.essay.variables())
   vars <- union(vars, get.resource.variables())
   

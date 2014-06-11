@@ -66,7 +66,12 @@ projects.data$school_ncesid_status <- factor(ifelse(is.na(projects.data$school_n
 #   "SmallCity"
 # ))
 
+# school_state
 projects.data$school_state <- factor(toupper(projects.data$school_state))
+t <- model.matrix(~ school_state, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("school_state", colnames(t))])
+# Fin school_state
+
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
 
 # school_district
@@ -114,6 +119,8 @@ projects.data$eligible_double_your_impact_match <- factor(ifelse(projects.data$e
 projects.data$eligible_almost_home_match <- factor(ifelse(projects.data$eligible_almost_home_match == "t", "Yes", "No"))
 
 projects.data$month_posted <- factor(month(projects.data$date_posted))
+projects.data$year_posted <- factor(year(projects.data$date_posted), ordered=TRUE)
+
 projects.data$day_of_week_posted <- factor(weekdays(projects.data$date_posted))
 
 projects.data$fulfillment_labor_materials <- factor(projects.data$fulfillment_labor_materials)
@@ -149,6 +156,9 @@ agg <- ddply(projects.data,
 )
 
 projects.data <- merge(projects.data, agg, on=c("school_state"))
+projects.data <- projects.data[, colnames(projects.data) != "school_state"]
+
+
 
 agg <- ddply(projects.data,
              .(school_city),
