@@ -39,7 +39,7 @@ df <- data.frame(
 
 write.csv(
   x=df, 
-  file=file.path("tmp","gbm_submission_is_exciting_only_model.csv"),
+  file=file.path("submissions","gbm_submission_is_exciting_only_model.csv"),
   row.names=FALSE,
   quote=FALSE
   )
