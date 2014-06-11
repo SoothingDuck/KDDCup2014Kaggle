@@ -72,6 +72,7 @@ t <- model.matrix(~ school_state, data=projects.data)
 projects.data <- cbind(projects.data, t[,grepl("school_state", colnames(t))])
 # Fin school_state
 
+
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
 
 # school_district
@@ -192,6 +193,35 @@ agg <- ddply(projects.data,
 )
 
 projects.data <- merge(projects.data, agg, on=c("school_county"))
+
+# primary_focus_subject
+t <- model.matrix(~ primary_focus_subject, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("primary_focus_subject", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "primary_focus_subject"]
+# fin primary_focus_subject
+
+# secondary_focus_subject
+t <- model.matrix(~ secondary_focus_subject, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("secondary_focus_subject", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "secondary_focus_subject"]
+# fin secondary_focus_subject
+
+# primary_focus_area
+t <- model.matrix(~ primary_focus_area, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("primary_focus_area", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "primary_focus_area"]
+# fin primary_focus_subject
+
+# secondary_focus_area
+t <- model.matrix(~ secondary_focus_area, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("secondary_focus_area", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "secondary_focus_area"]
+# fin secondary_focus_subject
+
+# primary_focus_subject:secondary_focus_subject
+# t <- model.matrix(~ primary_focus_subject:secondary_focus_subject, data=projects.data)
+# projects.data <- cbind(projects.data, t[,grepl("primary_focus_subject", colnames(t))])
+# fin primary_focus_subject:secondary_focus_subject
 
 # diff price
 projects.data$total_price_optional_support <- with(projects.data, total_price_including_optional_support-total_price_excluding_optional_support)

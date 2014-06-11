@@ -113,6 +113,10 @@ get.project.variables <- function(data) {
   tmp <- c()
   
   tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("primary_focus_subject", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("secondary_focus_subject", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("primary_focus_area", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("secondary_focus_area", colnames(data))])
   
   tmp <- union(tmp, c(
     # "school_state",
@@ -126,10 +130,10 @@ get.project.variables <- function(data) {
     "teacher_prefix",
     "teacher_teach_for_america",
     "teacher_ny_teaching_fellow",
-    "primary_focus_subject",
-    "primary_focus_area",
-    "secondary_focus_subject",
-    "secondary_focus_area",
+    # "primary_focus_subject",
+    # "primary_focus_area",
+    # "secondary_focus_subject",
+    # "secondary_focus_area",
     "resource_type",
     "poverty_level",
     "grade_level",

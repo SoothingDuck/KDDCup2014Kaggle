@@ -14,7 +14,7 @@ projects.train.is.exciting <- split.train.test(projects.train.is.exciting.all)
 model.is.exciting <- get.gbm.model(
   xtrain=projects.train.is.exciting$train[,all.cols], 
   ytrain=projects.train.is.exciting$train[,c("is_exciting")], 
-  shrinkage = 0.3,
+  shrinkage = 0.1,
   n.trees = 200
   )
 
@@ -25,13 +25,13 @@ important.cols <- as.character(df$var[df$rel.inf > 0.0])
 model.is.exciting.only.refined <- get.gbm.model(
   xtrain=projects.train.is.exciting.all[,important.cols], 
   ytrain=projects.train.is.exciting.all[,c("is_exciting")], 
-  shrinkage = 0.3,
-  n.trees = 200)
+  shrinkage = 0.1,
+  n.trees = 500)
 
 # valider une soumission
 test.data <- get.projects.data.test(force=FALSE)
 
-prediction <- predict(model.is.exciting.only.refined, newdata=test.data[,important.cols],n.trees=200, type="response")
+prediction <- predict(model.is.exciting.only.refined, newdata=test.data[,important.cols],n.trees=500, type="response")
 
 df <- data.frame(
   projectid=test.data$projectid,
