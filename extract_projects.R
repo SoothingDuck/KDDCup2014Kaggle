@@ -1,4 +1,6 @@
 library(RSQLite)
+library(plyr)
+
 sqlitedb.filename <- file.path("db", "kdd_cup_data.sqlite3")
 
 print("Extraction donnees projets...")
@@ -56,6 +58,8 @@ library(lubridate)
 projects.data$date_posted <- ymd(projects.data$date_posted)
 projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data$date_posted)/(3600*24))
 # projects.data <- subset(projects.data, days_since_posted <= 1500)
+projects.data <- subset(projects.data, days_since_posted <= 350)
+
 
 # normalization
 projects.data$typedataset <- factor(projects.data$typedataset)
@@ -72,15 +76,27 @@ t <- model.matrix(~ school_state, data=projects.data)
 projects.data <- cbind(projects.data, t[,grepl("school_state", colnames(t))])
 # Fin school_state
 
+# school_district
+projects.data$school_district <- factor(toupper(projects.data$school_district))
+u <- data.frame(table(projects.data$school_district))
+u <- u[order(-u$Freq),]
+projects.data$school_district_restriction <- factor(ifelse(as.character(projects.data$school_district) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_district), "OTHER"))
+t <- model.matrix(~ school_district_restriction, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("school_district_restriction", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "school_district_restriction"]
+# Fin school_district
+
+# school_county
+projects.data$school_county <- factor(toupper(projects.data$school_county))
+u <- data.frame(table(projects.data$school_county))
+u <- u[order(-u$Freq),]
+projects.data$school_county_restriction <- factor(ifelse(as.character(projects.data$school_county) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_county), "OTHER"))
+t <- model.matrix(~ school_county_restriction, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("school_county_restriction", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "school_county_restriction"]
+# Fin school_county
 
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
-
-# school_district
-t <- data.frame(table(projects.data$school_district), stringsAsFactors=FALSE)
-t <- t[order(-t$Freq),]
-t.vars <- as.character(t$Var1[1:500])
-projects.data$school_district_factor <- factor(ifelse(projects.data$school_district %in% t.vars, projects.data$school_district, "SmallDistrict"))
-# fin school_district
 
 projects.data$school_charter <- factor(ifelse(projects.data$school_charter == "t", "Yes", "No"))
 projects.data$school_magnet <- factor(ifelse(projects.data$school_magnet == "t", "Yes", "No"))
@@ -227,4 +243,5 @@ projects.data <- projects.data[, colnames(projects.data) != "secondary_focus_are
 projects.data$total_price_optional_support <- with(projects.data, total_price_including_optional_support-total_price_excluding_optional_support)
 
 # Nettoyage
-rm(list=c("con", "drv", "sqlitedb.filename"))
+rm(list=c("con", "drv", "sqlitedb.filename", "agg", "t", "u"))
+gc(TRUE)

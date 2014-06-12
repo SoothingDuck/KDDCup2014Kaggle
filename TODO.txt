@@ -1,0 +1,15 @@
+comptage des resources en plus du coût => Checked
+
+Analyse texte sur resources
+
+séparation county => Checked
+séparation zipcode
+séparation ville
+
+séparation teach for america
+
+most frequent primary area:secondary area
+most frequent primary focus:secondary focus
+
+séparation teacher prefix
+séparation school metro
