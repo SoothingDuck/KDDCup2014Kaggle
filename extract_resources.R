@@ -74,7 +74,6 @@ resources.by.type <- merge(resources.by.type, resources.project.agg.data, by=c("
 rm(list=c(
   "resources.project.resource_type.agg.data",
   "resources.project.agg.data",
-  "resources.data",
   "con",
   "drv",
   "sqlitedb.filename",
