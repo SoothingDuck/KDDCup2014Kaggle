@@ -59,12 +59,17 @@ get.projects.data.test <- function(force=FALSE) {
   
   projects.data <- projects.data[,colnames(projects.data) != "typedataset"]
   
-  projects.data$Books[is.na(projects.data$Books)] <- 0
-  projects.data$Other[is.na(projects.data$Other)] <- 0
-  projects.data$Supplies[is.na(projects.data$Supplies)] <- 0
-  projects.data$Technology[is.na(projects.data$Technology)] <- 0
-  projects.data$Trips[is.na(projects.data$Trips)] <- 0
-  projects.data$Visitors[is.na(projects.data$Visitors)] <- 0
+  for(col in names(projects.data)[grepl("_total_price_resource", names(projects.data))]) {
+    projects.data[is.na(projects.data[,col]),col] <- 0
+  }
+  
+  for(col in names(projects.data)[grepl("_nb_item_resource", names(projects.data))]) {
+    projects.data[is.na(projects.data[,col]),col] <- 0
+  }
+
+  for(col in c("total_price_project","nb_item_project","nb_distinct_vendors_project")) {
+    projects.data[is.na(projects.data[,col]),col] <- 0
+  }
   
   return(projects.data)
 }
@@ -117,6 +122,8 @@ get.project.variables <- function(data) {
   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_subject", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_area", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_area", colnames(data))])
+  # tmp <- union(tmp, colnames(data)[grepl("school_district_restriction", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("school_county_restriction", colnames(data))])
   
   tmp <- union(tmp, c(
     # "school_state",
@@ -178,18 +185,18 @@ get.essay.variables <- function() {
   
 }
 
-get.resource.variables <- function() {
+get.resource.variables <- function(data) {
   
-  return(
-    c(
-      "Books",
-      "Other",
-      "Supplies",
-      "Technology",
-      "Trips",
-      "Visitors"
+  tmp <- c(
+    "total_price_project",
+    "nb_item_project",
+    "nb_distinct_vendors_project"
     )
-  )
+  
+  tmp <- union(tmp, colnames(data)[grepl("_total_price_resource", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("_nb_item_resource", colnames(data))])
+  
+  return(tmp)
   
 }
 
@@ -199,7 +206,7 @@ get.all.variables <- function(data) {
   
   vars <- union(vars, get.project.variables(data))
   vars <- union(vars, get.essay.variables())
-  vars <- union(vars, get.resource.variables())
+  vars <- union(vars, get.resource.variables(data))
   
   return(vars)
   
