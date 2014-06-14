@@ -21,3 +21,4 @@ docs <- data.frame(docs=tmp$item_list, row.names=tmp$projectid, stringsAsFactors
 ds <- DataframeSource(docs)
 
 corpus <- VCorpus(ds)
+writeCorpus(ds, path=file.path("tmp", "corpus"))
