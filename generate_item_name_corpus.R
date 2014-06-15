@@ -10,6 +10,7 @@ resources.data <- merge(resources.data, projects.data, by="projectid")
 library(tm)
 library(plyr)
 
+print("plyr")
 tmp <- ddply(
   resources.data,
   .(projectid),
@@ -17,8 +18,12 @@ tmp <- ddply(
   item_list=paste(item_name, collapse=" ")
   )
 
+
 docs <- data.frame(docs=tmp$item_list, row.names=tmp$projectid, stringsAsFactors=FALSE)
 ds <- DataframeSource(docs)
 
+print("generation corpus")
 corpus <- VCorpus(ds)
+
+print("ecriture corpus")
 writeCorpus(corpus, path=file.path("tmp", "corpus"))
