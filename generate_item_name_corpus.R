@@ -19,11 +19,12 @@ tmp <- ddply(
   )
 
 
-docs <- data.frame(docs=tmp$item_list, row.names=tmp$projectid, stringsAsFactors=FALSE)
-ds <- DataframeSource(docs)
+docs <- tmp$item_list
+names(docs) <- tmp$projectid
+ds <- VectorSource(docs)
 
 print("generation corpus")
 corpus <- VCorpus(ds)
 
 print("ecriture corpus")
-writeCorpus(corpus, path=file.path("tmp", "corpus"))
+save(corpus, file=file.path("tmp","corpus.RData"))
