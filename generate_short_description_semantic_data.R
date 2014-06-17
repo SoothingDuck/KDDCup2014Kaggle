@@ -1,25 +1,25 @@
 source("functions.R")
-source("extract_resources.R")
+source("extract_essays.R")
 
 projects.data <- get.projects.data(force=FALSE)
 # projects.data <- subset(projects.data, typedataset == "train")
 projects.data <- subset(projects.data, days_since_posted <= 350)
 
-resources.data <- merge(resources.data, projects.data, by="projectid")
+projects.data <- merge(projects.data, essays.data, by="projectid")
 
 library(tm)
 library(plyr)
 
-print("plyr")
-tmp <- ddply(
-  resources.data,
-  .(projectid),
-  summarise,
-  item_list=paste(item_name, collapse=" ")
-  )
+print("selection")
+tmp <- projects.data[, names(projects.data) %in% c("projectid", "title", "short_description", "need_statement.y", "essay")]
+names(tmp) <- c("projectid", "title", "short_description", "need_statement", "essay")
 
+print("cleanup")
+rm(list=c("essays.data", "projects.data"))
+gc(TRUE)
 
-docs <- tmp$item_list
+print("vectorize")
+docs <- tmp$short_description
 names(docs) <- as.character(tmp$projectid)
 ds <- VectorSource(docs)
 
@@ -40,11 +40,11 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
-sparsed.dtm <- removeSparseTerms(dtm, 0.9)
+sparsed.dtm <- removeSparseTerms(dtm, 0.97)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
 sparsed.dtm.tmp <- data.frame(sparsed.dtm.tmp)
-colnames(sparsed.dtm.tmp) <- paste("word", colnames(sparsed.dtm.tmp), sep=".")
+colnames(sparsed.dtm.tmp) <- paste("word", "short_description", colnames(sparsed.dtm.tmp), sep=".")
 
 # for(col in colnames(sparsed.dtm.tmp)) {
 #   sparsed.dtm.tmp[, col] <- ifelse(sparsed.dtm.tmp[,col] > 0, 1, 0)
@@ -52,6 +52,6 @@ colnames(sparsed.dtm.tmp) <- paste("word", colnames(sparsed.dtm.tmp), sep=".")
 
 sparsed.dtm.tmp$projectid <- tmp$projectid
 
-semantic.data <- sparsed.dtm.tmp
+semantic.short_description.data <- sparsed.dtm.tmp
 
-save(semantic.data, file=file.path("tmp","semantic.RData"))
+save(semantic.short_description.data, file=file.path("tmp","semantic_short_description.RData"))

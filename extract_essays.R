@@ -13,7 +13,10 @@ essays.data <- dbGetQuery(
   length(short_description) as short_description_length,
   length(need_statement) as need_statement_length,
   length(essay) as essay_length,
-  need_statement
+  title as title,
+  short_description as short_description,
+  need_statement as need_statement,
+  essay as essay
   from essays
   "
 )                                         
