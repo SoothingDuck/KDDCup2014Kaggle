@@ -6,7 +6,12 @@ model.filename <- file.path("tmp","model_is_exciting.RData")
 projects.train.is.exciting.all <- get.projects.data.train(force=FALSE, variable="is_exciting")
 projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 350)
 
+load(file=file.path("tmp","semantic.RData"))
+projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, semantic.data, by="projectid")
+
 all.cols <- get.all.variables(projects.train.is.exciting.all)
+all.cols <- union(all.cols, colnames(projects.train.is.exciting.all)[grepl("word", colnames(projects.train.is.exciting.all))])
+
 model.cols <- all.cols
 
 projects.train.is.exciting <- split.train.test(projects.train.is.exciting.all)

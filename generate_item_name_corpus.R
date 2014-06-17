@@ -2,7 +2,7 @@ source("functions.R")
 source("extract_resources.R")
 
 projects.data <- get.projects.data(force=FALSE)
-projects.data <- subset(projects.data, typedataset == "train")
+# projects.data <- subset(projects.data, typedataset == "train")
 projects.data <- subset(projects.data, days_since_posted <= 350)
 
 resources.data <- merge(resources.data, projects.data, by="projectid")
@@ -36,7 +36,9 @@ corpus <- tm_map(corpus, stemDocument)
 corpus <- tm_map(corpus, removeWords, stopwords("english"))
 
 dtm <- DocumentTermMatrix(corpus,
-                          control=list(stopwords=TRUE))
+                          control=list(
+                            weighting=weightTfIdf,
+                            stopwords=TRUE))
 
 sparsed.dtm <- removeSparseTerms(dtm, 0.9)
 
@@ -44,9 +46,9 @@ sparsed.dtm.tmp <- inspect(sparsed.dtm)
 sparsed.dtm.tmp <- data.frame(sparsed.dtm.tmp)
 colnames(sparsed.dtm.tmp) <- paste("word", colnames(sparsed.dtm.tmp), sep=".")
 
-for(col in colnames(sparsed.dtm.tmp)) {
-  sparsed.dtm.tmp[, col] <- ifelse(sparsed.dtm.tmp[,col] > 0, 1, 0)
-}
+# for(col in colnames(sparsed.dtm.tmp)) {
+#   sparsed.dtm.tmp[, col] <- ifelse(sparsed.dtm.tmp[,col] > 0, 1, 0)
+# }
 
 sparsed.dtm.tmp$projectid <- tmp$projectid
 
