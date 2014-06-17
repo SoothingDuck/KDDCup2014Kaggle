@@ -40,7 +40,7 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
-sparsed.dtm <- removeSparseTerms(dtm, 0.97)
+sparsed.dtm <- removeSparseTerms(dtm, 0.90)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
 sparsed.dtm.tmp <- data.frame(sparsed.dtm.tmp)
