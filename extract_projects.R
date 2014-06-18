@@ -1,5 +1,6 @@
 library(RSQLite)
 library(plyr)
+library(reshape2)
 
 sqlitedb.filename <- file.path("db", "kdd_cup_data.sqlite3")
 
@@ -60,6 +61,36 @@ projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data
 # projects.data <- subset(projects.data, days_since_posted <= 1500)
 projects.data <- subset(projects.data, days_since_posted <= 350)
 
+# primary_subject:secondary_subject
+t <- data.frame(model.matrix(~ primary_focus_subject:secondary_focus_subject, data=projects.data))
+t <- t[,2:ncol(t)]
+t$projectid <- projects.data$projectid
+m <- melt(t, id.vars="projectid")
+u <- subset(m, value > 0)
+s <- data.frame(table(u$variable))
+s <- s[order(-s$Freq),]
+s.list <- s$Var1[1:50]
+m <- subset(m, variable %in% s.list)
+v <- dcast(m, projectid ~ variable)
+names(v) <- c("projectid", paste("primary_focus_merge", names(v[2:ncol(v)]), sep="."))
+projects.data <- merge(projects.data, v, by="projectid")
+# Fin primary_subject:secondary_subject
+
+
+# primary_area:secondary_area
+t <- data.frame(model.matrix(~ primary_focus_area:secondary_focus_area, data=projects.data))
+t <- t[,2:ncol(t)]
+t$projectid <- projects.data$projectid
+m <- melt(t, id.vars="projectid")
+u <- subset(m, value > 0)
+s <- data.frame(table(u$variable))
+s <- s[order(-s$Freq),]
+s.list <- s$Var1[1:50]
+m <- subset(m, variable %in% s.list)
+v <- dcast(m, projectid ~ variable)
+names(v) <- c("projectid", paste("primary_focus_merge", names(v[2:ncol(v)]), sep="."))
+projects.data <- merge(projects.data, v, by="projectid")
+# Fin primary_area:secondary_area
 
 # normalization
 projects.data$typedataset <- factor(projects.data$typedataset)
@@ -243,5 +274,5 @@ projects.data <- projects.data[, colnames(projects.data) != "secondary_focus_are
 projects.data$total_price_optional_support <- with(projects.data, total_price_including_optional_support-total_price_excluding_optional_support)
 
 # Nettoyage
-rm(list=c("con", "drv", "sqlitedb.filename", "agg", "t", "u"))
+rm(list=c("con", "drv", "sqlitedb.filename", "agg", "t", "u", "m", "s", "v", "s.list"))
 gc(TRUE)
