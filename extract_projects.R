@@ -1,3 +1,4 @@
+source("functions.R")
 library(RSQLite)
 library(plyr)
 library(reshape2)
@@ -41,7 +42,7 @@ T1.secondary_focus_area as secondary_focus_area,
 T1.resource_type as resource_type,
 T1.poverty_level as poverty_level,
 T1.grade_level as grade_level,
-T1.fulfillment_labor_materials as fulfillment_labor_materials,
+-- T1.fulfillment_labor_materials as fulfillment_labor_materials,
 T1.total_price_excluding_optional_support as total_price_excluding_optional_support,
 T1.total_price_including_optional_support as total_price_including_optional_support,
 T1.students_reached as students_reached,
@@ -62,58 +63,58 @@ projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data
 projects.data <- subset(projects.data, days_since_posted <= 350)
 
 # primary_subject:secondary_subject
-t <- data.frame(model.matrix(~ primary_focus_subject:secondary_focus_subject, data=projects.data))
-t <- t[,2:ncol(t)]
-t$projectid <- projects.data$projectid
-m <- melt(t, id.vars="projectid")
-u <- subset(m, value > 0)
-s <- data.frame(table(u$variable))
-s <- s[order(-s$Freq),]
-s.list <- s$Var1[1:50]
-m <- subset(m, variable %in% s.list)
-v <- dcast(m, projectid ~ variable)
-names(v) <- c("projectid", paste("primary_focus_merge", names(v[2:ncol(v)]), sep="."))
+v <- make.sub.model.matrix(
+  projects.data, 
+  ~ primary_focus_subject:secondary_focus_subject,
+  "primary_focus_merge",
+  50
+  )
 projects.data <- merge(projects.data, v, by="projectid")
 # Fin primary_subject:secondary_subject
 
 # primary_focus_area:primary_focus_subject
-t <- data.frame(model.matrix(~ primary_focus_area:primary_focus_subject, data=projects.data))
-t <- t[,2:ncol(t)]
-t$projectid <- projects.data$projectid
-m <- melt(t, id.vars="projectid")
-u <- subset(m, value > 0)
-s <- data.frame(table(u$variable))
-s <- s[order(-s$Freq),]
-s.list <- s$Var1[1:50]
-m <- subset(m, variable %in% s.list)
-v <- dcast(m, projectid ~ variable)
-names(v) <- c("projectid", paste("primary_focus_merge", names(v[2:ncol(v)]), sep="."))
+v <- make.sub.model.matrix(
+  projects.data, 
+  ~ primary_focus_area:primary_focus_subject,
+  "primary_focus_merge",
+  50
+)
 projects.data <- merge(projects.data, v, by="projectid")
 # Fin primary_focus_area:primary_focus_subject
 
 # primary_area:secondary_area
-t <- data.frame(model.matrix(~ primary_focus_area:secondary_focus_area, data=projects.data))
-t <- t[,2:ncol(t)]
-t$projectid <- projects.data$projectid
-m <- melt(t, id.vars="projectid")
-u <- subset(m, value > 0)
-s <- data.frame(table(u$variable))
-s <- s[order(-s$Freq),]
-s.list <- s$Var1[1:50]
-m <- subset(m, variable %in% s.list)
-v <- dcast(m, projectid ~ variable)
-names(v) <- c("projectid", paste("primary_focus_merge", names(v[2:ncol(v)]), sep="."))
+v <- make.sub.model.matrix(
+  projects.data, 
+  ~ primary_focus_area:secondary_focus_area,
+  "primary_focus_merge",
+  50
+)
 projects.data <- merge(projects.data, v, by="projectid")
 # Fin primary_area:secondary_area
+
+# school_city
+v <- make.sub.model.matrix(
+  projects.data, 
+  ~ school_city,
+  "school_city_big",
+  50
+)
+projects.data <- merge(projects.data, v, by="projectid")
+# Fin school_city
+
+# school_district
+v <- make.sub.model.matrix(
+  projects.data, 
+  ~ school_district,
+  "school_district_big",
+  50
+)
+projects.data <- merge(projects.data, v, by="projectid")
+# Fin school_district
 
 # normalization
 projects.data$typedataset <- factor(projects.data$typedataset)
 projects.data$school_ncesid_status <- factor(ifelse(is.na(projects.data$school_ncesid), "NotAvailable", "Available"))
-# projects.data$school_city_big <- factor(ifelse(
-#   projects.data$school_city %in% names(which(prop.table(table(projects.data$school_city)) > 0.01)),
-#   projects.data$school_city,
-#   "SmallCity"
-# ))
 
 # school_state
 projects.data$school_state <- factor(toupper(projects.data$school_state))
@@ -155,7 +156,14 @@ projects.data$teacher_prefix[projects.data$teacher_prefix == "Dr."] <- "Mr."
 projects.data$teacher_prefix[projects.data$teacher_prefix == "Mr. & Mrs."] <- "Mr." 
 projects.data$teacher_prefix <- factor(projects.data$teacher_prefix)
 
-projects.data$teacher_teach_for_america <- factor(ifelse(projects.data$teacher_teach_for_america == "t", "Yes", "No"))
+# teacher_teach_for_america
+projects.data$teacher_teach_for_america <- factor(toupper(projects.data$teacher_teach_for_america))
+t <- model.matrix(~ teacher_teach_for_america, data=projects.data)
+projects.data <- cbind(projects.data, data.frame(teacher_teach_for_americaYes=t[,grepl("teacher_teach_for_america", colnames(t))]))
+projects.data <- projects.data[, colnames(projects.data) != "teacher_teach_for_america"]
+# Fin teacher_teach_for_america
+
+
 projects.data$teacher_ny_teaching_fellow <- factor(ifelse(projects.data$teacher_ny_teaching_fellow == "t", "Yes", "No"))
 
 # projects.data$primary_focus_subject[projects.data$primary_focus_subject == ""] <- "Literacy"
@@ -185,7 +193,19 @@ projects.data$year_posted <- factor(year(projects.data$date_posted), ordered=TRU
 
 projects.data$day_of_week_posted <- factor(weekdays(projects.data$date_posted))
 
-projects.data$fulfillment_labor_materials <- factor(projects.data$fulfillment_labor_materials)
+# projects.data$fulfillment_labor_materials <- factor(projects.data$fulfillment_labor_materials)
+
+# month_posted
+v <- make.sub.model.matrix(
+  projects.data, 
+  ~ month_posted,
+  "month_posted",
+  50
+)
+projects.data <- merge(projects.data, v, by="projectid")
+projects.data <- projects.data[, colnames(projects.data) != "month_posted"]
+# Fin school_city
+
 
 
 agg <- ddply(projects.data,
@@ -202,22 +222,22 @@ agg <- ddply(projects.data,
 
 projects.data <- merge(projects.data, agg, on=c("teacher_acctid"))
 
-agg <- ddply(subset(projects.data, ! is.na(school_ncesid)),
-             .(school_ncesid),
-             summarise,
-             nb.distinct.school.by.ncesid=length(unique(schoolid))
-)
+# agg <- ddply(subset(projects.data, ! is.na(school_ncesid)),
+#              .(school_ncesid),
+#              summarise,
+#              nb.distinct.school.by.ncesid=length(unique(schoolid))
+# )
+# 
+# projects.data <- merge(projects.data, agg, on=c("school_ncesid"), all.x = TRUE)
+# projects.data$nb.distinct.school.by.ncesid <- with(projects.data, factor(ifelse(is.na(nb.distinct.school.by.ncesid), 1, nb.distinct.school.by.ncesid)))
 
-projects.data <- merge(projects.data, agg, on=c("school_ncesid"), all.x = TRUE)
-projects.data$nb.distinct.school.by.ncesid <- with(projects.data, factor(ifelse(is.na(nb.distinct.school.by.ncesid), 1, nb.distinct.school.by.ncesid)))
-
-agg <- ddply(projects.data,
-             .(school_state),
-             summarise,
-             nb.projects.by.state=length(school_state)
-)
-
-projects.data <- merge(projects.data, agg, on=c("school_state"))
+# agg <- ddply(projects.data,
+#              .(school_state),
+#              summarise,
+#              nb.projects.by.state=length(school_state)
+# )
+# 
+# projects.data <- merge(projects.data, agg, on=c("school_state"))
 projects.data <- projects.data[, colnames(projects.data) != "school_state"]
 
 
@@ -239,13 +259,13 @@ agg <- ddply(projects.data,
 
 projects.data <- merge(projects.data, agg, on=c("school_zip"))
 
-agg <- ddply(projects.data,
-             .(school_district),
-             summarise,
-             nb.projects.by.district=length(school_district)
-)
-
-projects.data <- merge(projects.data, agg, on=c("school_district"))
+# agg <- ddply(projects.data,
+#              .(school_district),
+#              summarise,
+#              nb.projects.by.district=length(school_district)
+# )
+# 
+# projects.data <- merge(projects.data, agg, on=c("school_district"))
 
 agg <- ddply(projects.data,
              .(school_county),

@@ -125,6 +125,9 @@ get.project.variables <- function(data) {
   # tmp <- union(tmp, colnames(data)[grepl("school_district_restriction", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_county_restriction", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("school_city_big", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("school_district_big", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("month_posted", colnames(data))])
   
   
   tmp <- union(tmp, c(
@@ -137,7 +140,7 @@ get.project.variables <- function(data) {
     "school_kipp",
     "school_charter_ready_promise",
     "teacher_prefix",
-    "teacher_teach_for_america",
+    "teacher_teach_for_americaYes",
     "teacher_ny_teaching_fellow",
     # "primary_focus_subject",
     # "primary_focus_area",
@@ -146,14 +149,14 @@ get.project.variables <- function(data) {
     "resource_type",
     "poverty_level",
     "grade_level",
-    "fulfillment_labor_materials",
+    # "fulfillment_labor_materials",
     "eligible_double_your_impact_match",
     "eligible_almost_home_match",
-    "school_ncesid_status",
-    "month_posted",
+    # "school_ncesid_status",
+    # "month_posted",
     "year_posted",
     "day_of_week_posted",
-    "nb.distinct.school.by.ncesid",
+    # "nb.distinct.school.by.ncesid",
     "total_price_excluding_optional_support",
     "total_price_including_optional_support",
     "students_reached",
@@ -173,6 +176,43 @@ get.project.variables <- function(data) {
   return(tmp)
   
 }
+
+
+make.sub.model.matrix <- function(data, formula, prefix, nb.up) {
+  
+  if(! any(grepl(":", as.character(formula)))) {
+    var <- as.character(formula)[2]
+    t <- data.frame(table(data[, var]))
+    t <- t[order(-t$Freq),]
+    
+    data[! data[, var] %in% t$Var1[1:nb.up], var] <- "Poubelle"
+  }
+  
+  t <- data.frame(model.matrix(formula, data=data))
+  t <- t[,2:ncol(t)]
+  
+  if(! any(grepl(":", as.character(formula)))) {
+    var <- as.character(formula)[2]
+    t <- t[, colnames(t) != paste(var, "Poubelle", sep="")]
+    names(t) <- paste(prefix, names(t), sep=".")
+    t$projectid <- projects.data$projectid
+    return(t)
+  } else {
+    t$projectid <- projects.data$projectid
+    m <- melt(t, id.vars="projectid")
+    rm(list="t")
+    gc(TRUE)
+    u <- subset(m, value > 0)
+    s <- data.frame(table(u$variable))
+    s <- s[order(-s$Freq),]
+    s.list <- s$Var1[1:nb.up]
+    m <- subset(m, variable %in% s.list)
+    v <- dcast(m, projectid ~ variable)
+    names(v) <- c("projectid", paste(prefix, names(v[2:ncol(v)]), sep="."))
+    return(v)    
+  }
+}
+
 
 get.essay.variables <- function() {
   

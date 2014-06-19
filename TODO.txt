@@ -1,15 +1,18 @@
+1.séparation month_posted
+
 comptage des resources en plus du coût => Checked
 
-Analyse texte sur resources
+Analyse texte sur resources => Checked
 
 séparation county => Checked
-séparation zipcode
-séparation ville
+séparation zipcode => TODO
+séparation ville => TODO
 
-séparation teach for america
+séparation teach for america => Checked
 
-most frequent primary area:secondary area
-most frequent primary focus:secondary focus
+
+most frequent primary area:secondary area => Checked
+most frequent primary focus:secondary focus => Checked
 
 séparation teacher prefix
 séparation school metro
