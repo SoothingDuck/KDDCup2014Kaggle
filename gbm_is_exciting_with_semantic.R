@@ -3,7 +3,7 @@ source("functions.R")
 # is.exciting
 model.filename <- file.path("tmp","model_is_exciting.RData")
 
-projects.train.is.exciting.all <- get.projects.data.train(force=TRUE, variable="is_exciting")
+projects.train.is.exciting.all <- get.projects.data.train(force=FALSE, variable="is_exciting")
 projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 350)
 
 load(file=file.path("tmp","semantic_item_name.RData"))
@@ -45,6 +45,12 @@ model.is.exciting.only.refined <- get.gbm.model(
 
 # valider une soumission
 test.data <- get.projects.data.test(force=FALSE)
+
+test.data <- merge(test.data, semantic.item_name.data, by="projectid")
+test.data <- merge(test.data, semantic.short_description.data, by="projectid")
+test.data <- merge(test.data, semantic.title.data, by="projectid")
+test.data <- merge(test.data, semantic.essay.data, by="projectid")
+test.data <- merge(test.data, semantic.need_statement.data, by="projectid")
 
 prediction <- predict(model.is.exciting.only.refined, newdata=test.data[,important.cols],n.trees=500, type="response")
 
