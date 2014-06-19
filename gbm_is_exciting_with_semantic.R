@@ -21,9 +21,8 @@ projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, semantic
 all.cols <- get.all.variables(projects.train.is.exciting.all)
 all.cols <- union(all.cols, colnames(projects.train.is.exciting.all)[grepl("word", colnames(projects.train.is.exciting.all))])
 
-
 model.cols <- all.cols
-model.cols <- model.cols[! grepl("school_state", model.cols)]
+# model.cols <- model.cols[! grepl("school_state", model.cols)]
 
 projects.train.is.exciting <- split.train.test(projects.train.is.exciting.all)
 

@@ -76,6 +76,20 @@ names(v) <- c("projectid", paste("primary_focus_merge", names(v[2:ncol(v)]), sep
 projects.data <- merge(projects.data, v, by="projectid")
 # Fin primary_subject:secondary_subject
 
+# primary_focus_area:primary_focus_subject
+t <- data.frame(model.matrix(~ primary_focus_area:primary_focus_subject, data=projects.data))
+t <- t[,2:ncol(t)]
+t$projectid <- projects.data$projectid
+m <- melt(t, id.vars="projectid")
+u <- subset(m, value > 0)
+s <- data.frame(table(u$variable))
+s <- s[order(-s$Freq),]
+s.list <- s$Var1[1:50]
+m <- subset(m, variable %in% s.list)
+v <- dcast(m, projectid ~ variable)
+names(v) <- c("projectid", paste("primary_focus_merge", names(v[2:ncol(v)]), sep="."))
+projects.data <- merge(projects.data, v, by="projectid")
+# Fin primary_focus_area:primary_focus_subject
 
 # primary_area:secondary_area
 t <- data.frame(model.matrix(~ primary_focus_area:secondary_focus_area, data=projects.data))
