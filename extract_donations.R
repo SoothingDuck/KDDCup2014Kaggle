@@ -1,82 +1,65 @@
 library(RSQLite)
 sqlitedb.filename <- file.path("db", "kdd_cup_data.sqlite3")
 
-# Ressources data
+# Projects data
 drv <- dbDriver("SQLite")
 con <- dbConnect(drv, dbname=sqlitedb.filename)
-resources.data <- dbGetQuery(
+projects.data <- dbGetQuery(
   con,
   "
   select
-  resourceid as resourceid,
-  projectid as projectid,
-  vendorid as vendorid,
-  vendor_name as vendor_name,
-  project_resource_type,
-  item_name,
-  item_number,
-  case when item_unit_price is null then 0 else item_unit_price end as item_unit_price,
-  case when item_quantity is null then 0 else item_quantity end as item_quantity
-  from resources
+  T1.projectid as projectid,
+  T1.teacher_acctid as teacher_acctid,
+  T1.schoolid as schoolid,
+  T1.school_ncesid as school_ncesid,
+  T1.school_latitude as school_latitude,
+  T1.school_longitude as school_longitude,
+  T1.school_city as school_city,
+  T1.school_state as school_state,
+  T1.school_zip as school_zip,
+  T1.school_metro as school_metro,
+  T1.school_district as school_district,
+  T1.school_county as school_county,
+  T1.school_charter as school_charter,
+  T1.school_magnet as school_magnet,
+  T1.school_year_round as school_year_round,
+  T1.school_nlns as school_nlns,
+  T1.school_kipp as school_kipp,
+  T1.school_charter_ready_promise as school_charter_ready_promise,
+  T1.teacher_prefix as teacher_prefix,
+  T1.teacher_teach_for_america as teacher_teach_for_america,
+  T1.teacher_ny_teaching_fellow as teacher_ny_teaching_fellow,
+  T1.primary_focus_subject as primary_focus_subject,
+  T1.primary_focus_area as primary_focus_area,
+  T1.secondary_focus_subject as secondary_focus_subject,
+  T1.secondary_focus_area as secondary_focus_area,
+  T1.resource_type as resource_type,
+  T1.poverty_level as poverty_level,
+  T1.grade_level as grade_level,
+  -- T1.fulfillment_labor_materials as fulfillment_labor_materials,
+  T1.total_price_excluding_optional_support as total_price_excluding_optional_support,
+  T1.total_price_including_optional_support as total_price_including_optional_support,
+  T1.students_reached as students_reached,
+  T1.eligible_double_your_impact_match as eligible_double_your_impact_match,
+  T1.eligible_almost_home_match as eligible_almost_home_match,
+  T1.date_posted as date_posted,
+  T2.typedataset as typedataset
+  from projects T1 inner join project_dataset T2 on (T1.projectid=T2.projectid)
   "
 )                                         
 dbDisconnect(con)
-resources.data <- resources.data[, colnames(resources.data) != "row_names"]
 
-resources.data$total_price <- with(resources.data, item_unit_price*item_quantity)
-
-# Agg for project
+# Donations data
 drv <- dbDriver("SQLite")
 con <- dbConnect(drv, dbname=sqlitedb.filename)
-resources.project.agg.data <- dbGetQuery(
+donations.data <- dbGetQuery(
   con,
   "
   select
-  projectid as projectid,
-  sum(coalesce(item_unit_price,0)*coalesce(item_quantity,0)) as total_price_project,
-  sum(coalesce(item_quantity, 0)) as nb_item_project,
-  count(distinct vendorid) as nb_distinct_vendors_project
-  from resources
-  group by 1
+  *
+  from donations
   "
 )                                         
 dbDisconnect(con)
-resources.project.agg.data <- resources.project.agg.data[, colnames(resources.project.agg.data) != "row_names"]
-# End agg for project
+donations.data <- donations.data[, colnames(donations.data) != "row_names"]
 
-# Aggregated Ressources data
-drv <- dbDriver("SQLite")
-con <- dbConnect(drv, dbname=sqlitedb.filename)
-resources.project.resource_type.agg.data <- dbGetQuery(
-  con,
-  "
-  select
-  projectid as projectid,
-  project_resource_type as project_resource_type,
-  sum(coalesce(item_unit_price,0)*coalesce(item_quantity,0)) as total_price_resource,
-  sum(coalesce(item_quantity, 0)) as nb_item_resource
-  from resources
-  group by 1,2
-  "
-)                                         
-dbDisconnect(con)
-resources.project.resource_type.agg.data <- resources.project.resource_type.agg.data[, colnames(resources.project.resource_type.agg.data) != "row_names"]
-
-library(reshape2)
-m <- melt(resources.project.resource_type.agg.data, id.vars=c("projectid","project_resource_type"))
-m <- subset(m, project_resource_type != "")
-
-resources.by.type <- dcast(m, projectid ~ project_resource_type + variable, sum, fill=0)
-
-resources.by.type <- merge(resources.by.type, resources.project.agg.data, by=c("projectid"))
-
-# Nettoyage
-rm(list=c(
-  "resources.project.resource_type.agg.data",
-  "resources.project.agg.data",
-  "con",
-  "drv",
-  "sqlitedb.filename",
-  "m"
-  ))
-gc(TRUE)
