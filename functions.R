@@ -126,7 +126,7 @@ get.project.variables <- function(data) {
   # tmp <- union(tmp, colnames(data)[grepl("school_county_restriction", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("school_city_big", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("school_district_big", colnames(data))])
+  # tmp <- union(tmp, colnames(data)[grepl("school_district_big", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("month_posted", colnames(data))])
   
   
@@ -163,10 +163,10 @@ get.project.variables <- function(data) {
     "days_since_posted",
     "nb.projects.for.school",
     "nb.projects.for.teacher",
-    "nb.projects.by.state",
+    # "nb.projects.by.state",
     "nb.projects.by.city",
     "nb.projects.by.zip",
-    "nb.projects.by.district",
+    # "nb.projects.by.district",
     "nb.projects.by.county",
     # "school_district_factor",
     "total_price_optional_support"
@@ -180,10 +180,13 @@ get.project.variables <- function(data) {
 
 make.sub.model.matrix <- function(data, formula, prefix, nb.up) {
   
+  
   if(! any(grepl(":", as.character(formula)))) {
     var <- as.character(formula)[2]
+    data[, var] <-  as.character(data[, var])
     t <- data.frame(table(data[, var]))
     t <- t[order(-t$Freq),]
+    t$Var1 <- as.character(t$Var1)
     
     data[! data[, var] %in% t$Var1[1:nb.up], var] <- "Poubelle"
   }

@@ -102,15 +102,15 @@ v <- make.sub.model.matrix(
 projects.data <- merge(projects.data, v, by="projectid")
 # Fin school_city
 
-# school_district
-v <- make.sub.model.matrix(
-  projects.data, 
-  ~ school_district,
-  "school_district_big",
-  50
-)
-projects.data <- merge(projects.data, v, by="projectid")
-# Fin school_district
+# # school_district
+# v <- make.sub.model.matrix(
+#   projects.data, 
+#   ~ school_district,
+#   "school_district_big",
+#   50
+# )
+# projects.data <- merge(projects.data, v, by="projectid")
+# # Fin school_district
 
 # normalization
 projects.data$typedataset <- factor(projects.data$typedataset)
@@ -308,5 +308,5 @@ projects.data <- projects.data[, colnames(projects.data) != "secondary_focus_are
 projects.data$total_price_optional_support <- with(projects.data, total_price_including_optional_support-total_price_excluding_optional_support)
 
 # Nettoyage
-rm(list=c("con", "drv", "sqlitedb.filename", "agg", "t", "u", "m", "s", "v", "s.list"))
+rm(list=c("con", "drv", "sqlitedb.filename", "agg", "t", "u", "v"))
 gc(TRUE)
