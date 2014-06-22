@@ -1,10 +1,7 @@
 1.séparation month_posted
 
-comptage des resources en plus du coût => Checked
+statut donation
 
-Analyse texte sur resources => Checked
-
-séparation county => Checked
 séparation zipcode => TODO
 séparation ville => TODO
 

@@ -5,8 +5,7 @@ source("extract_donations.R")
 model.filename <- file.path("tmp","model_is_exciting.RData")
 
 projects.train.is.exciting.all <- get.projects.data.train(force=FALSE, variable="is_exciting")
-# projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 350)
-projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 180)
+projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 350)
 
 load(file=file.path("tmp","semantic_item_name.RData"))
 load(file=file.path("tmp","semantic_short_description.RData"))
@@ -23,10 +22,20 @@ projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, semantic
 projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
 projects.train.is.exciting.all$total_donation_to_project <- with(projects.train.is.exciting.all, ifelse(is.na(total_donation_to_project), 0, total_donation_to_project))
 projects.train.is.exciting.all$total_donation_optional_support <- with(projects.train.is.exciting.all, ifelse(is.na(total_donation_optional_support), 0, total_donation_optional_support))
+projects.train.is.exciting.all$mean_donation_to_project <- with(projects.train.is.exciting.all, ifelse(is.na(mean_donation_to_project), 0, mean_donation_to_project))
+projects.train.is.exciting.all$mean_donation_optional_support <- with(projects.train.is.exciting.all, ifelse(is.na(mean_donation_optional_support), 0, mean_donation_optional_support))
+projects.train.is.exciting.all$total_donation_total <- with(projects.train.is.exciting.all, ifelse(is.na(total_donation_total), 0, total_donation_total))
+projects.train.is.exciting.all$mean_donation_total <- with(projects.train.is.exciting.all, ifelse(is.na(mean_donation_total), 0, mean_donation_total))
+projects.train.is.exciting.all$min_days_since_donation <- with(projects.train.is.exciting.all, ifelse(is.na(min_days_since_donation), 5000, min_days_since_donation))
+projects.train.is.exciting.all$max_days_since_donation <- with(projects.train.is.exciting.all, ifelse(is.na(max_days_since_donation), 5000, max_days_since_donation))
+projects.train.is.exciting.all$mean_days_since_donation <- with(projects.train.is.exciting.all, ifelse(is.na(mean_days_since_donation), 5000, mean_days_since_donation))
 
 all.cols <- get.all.variables(projects.train.is.exciting.all)
 all.cols <- union(all.cols, colnames(projects.train.is.exciting.all)[grepl("word", colnames(projects.train.is.exciting.all))])
 all.cols <- union(all.cols, c("total_donation_to_project", "total_donation_optional_support"))
+all.cols <- union(all.cols, c("mean_donation_to_project", "mean_donation_optional_support"))
+all.cols <- union(all.cols, c("total_donation_total", "mean_donation_total"))
+all.cols <- union(all.cols, c("min_days_since_donation", "max_days_since_donation","mean_days_since_donation"))
 
 model.cols <- all.cols
 # model.cols <- model.cols[! grepl("school_state", model.cols)]
