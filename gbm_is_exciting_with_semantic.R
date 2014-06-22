@@ -1,10 +1,12 @@
 source("functions.R")
+source("extract_donations.R")
 
 # is.exciting
 model.filename <- file.path("tmp","model_is_exciting.RData")
 
 projects.train.is.exciting.all <- get.projects.data.train(force=FALSE, variable="is_exciting")
-projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 350)
+# projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 350)
+projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= 180)
 
 load(file=file.path("tmp","semantic_item_name.RData"))
 load(file=file.path("tmp","semantic_short_description.RData"))
@@ -18,8 +20,13 @@ projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, semantic
 projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, semantic.essay.data, by="projectid")
 projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, semantic.need_statement.data, by="projectid")
 
+projects.train.is.exciting.all <- merge(projects.train.is.exciting.all, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
+projects.train.is.exciting.all$total_donation_to_project <- with(projects.train.is.exciting.all, ifelse(is.na(total_donation_to_project), 0, total_donation_to_project))
+projects.train.is.exciting.all$total_donation_optional_support <- with(projects.train.is.exciting.all, ifelse(is.na(total_donation_optional_support), 0, total_donation_optional_support))
+
 all.cols <- get.all.variables(projects.train.is.exciting.all)
 all.cols <- union(all.cols, colnames(projects.train.is.exciting.all)[grepl("word", colnames(projects.train.is.exciting.all))])
+all.cols <- union(all.cols, c("total_donation_to_project", "total_donation_optional_support"))
 
 model.cols <- all.cols
 # model.cols <- model.cols[! grepl("school_state", model.cols)]
@@ -51,6 +58,10 @@ test.data <- merge(test.data, semantic.short_description.data, by="projectid")
 test.data <- merge(test.data, semantic.title.data, by="projectid")
 test.data <- merge(test.data, semantic.essay.data, by="projectid")
 test.data <- merge(test.data, semantic.need_statement.data, by="projectid")
+
+test.data <- merge(test.data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
+test.data$total_donation_to_project <- with(test.data, ifelse(is.na(total_donation_to_project), 0, total_donation_to_project))
+test.data$total_donation_optional_support <- with(test.data, ifelse(is.na(total_donation_optional_support), 0, total_donation_optional_support))
 
 prediction <- predict(model.is.exciting.only.refined, newdata=test.data[,important.cols],n.trees=500, type="response")
 
