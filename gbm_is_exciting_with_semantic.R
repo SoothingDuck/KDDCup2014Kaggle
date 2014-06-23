@@ -20,10 +20,62 @@ make.model.variable.list <- function(data) {
   
   all.cols <- get.all.variables(data)
   all.cols <- union(all.cols, colnames(data)[grepl("word", colnames(data))])
-  all.cols <- union(all.cols, c("total_donation_to_project", "total_donation_optional_support"))
-  all.cols <- union(all.cols, c("mean_donation_to_project", "mean_donation_optional_support"))
-  all.cols <- union(all.cols, c("total_donation_total", "mean_donation_total"))
-  all.cols <- union(all.cols, c("min_days_since_donation", "max_days_since_donation","mean_days_since_donation"))
+
+#   total_donation_to_project=sum(donation_to_project),
+#   max_donation_to_project=max(donation_to_project),
+#   mean_donation_to_project=mean(donation_to_project),
+#   median_donation_to_project=median(donation_to_project),
+  all.cols <- union(
+    all.cols,
+    c(
+      "total_donation_to_project", 
+      "max_donation_to_project",
+      "mean_donation_to_project",
+      "median_donation_to_project"
+      )
+    )
+  
+#   total_donation_optional_support=sum(donation_optional_support),
+#   max_donation_optional_support=max(donation_optional_support),
+#   mean_donation_optional_support=mean(donation_optional_support),
+#   median_donation_optional_support=median(donation_optional_support),
+  all.cols <- union(
+    all.cols, 
+    c(
+      "total_donation_optional_support", 
+      "max_donation_optional_support",
+      "mean_donation_optional_support",
+      "median_donation_optional_support"
+      )
+    )
+
+#   total_donation_total=sum(donation_to_project+donation_optional_support),
+#   max_donation_total=max(donation_to_project+donation_optional_support),
+#   mean_donation_total=mean(donation_to_project+donation_optional_support),
+#   median_donation_total=median(donation_to_project+donation_optional_support),
+  all.cols <- union(
+    all.cols, 
+    c(
+      "total_donation_total", 
+      "max_donation_total",
+      "mean_donation_total",
+      "median_donation_total"
+      )
+    )
+
+
+#   min_days_since_donation=min(days_since_donation),
+#   max_days_since_donation=max(days_since_donation),
+#   mean_days_since_donation=mean(days_since_donation),
+#   median_days_since_donation=median(days_since_donation)  
+  all.cols <- union(
+    all.cols, 
+    c(
+      "min_days_since_donation", 
+      "max_days_since_donation",
+      "mean_days_since_donation",
+      "median_days_since_donation"
+      ))
   
   model.cols <- all.cols
   # model.cols <- model.cols[! grepl("school_state", model.cols)]
@@ -129,7 +181,7 @@ make.gbm.train.model.important <- function(variable, days.hist, shrinkage, n.tre
   ))
 }
 
-nb.days <- 700
+nb.days <- 350
 
 is.exciting.eval <- make.gbm.train.model.estimate(
   variable="is_exciting",

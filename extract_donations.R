@@ -69,13 +69,13 @@ projects.data$date_posted <- ymd(projects.data$date_posted)
 projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data$date_posted)/(3600*24))
 # projects.data <- subset(projects.data, days_since_posted <= 350)
 # projects.data <- subset(projects.data, days_since_posted <= 180)
-projects.data <- subset(projects.data, days_since_posted <= 700)
+projects.data <- subset(projects.data, days_since_posted <= 350)
 
 donations.data$donation_date <- ymd(substr(donations.data$donation_timestamp,1,10))
 donations.data$days_since_donation <- (as.integer(ymd("2014-05-12") - donations.data$donation_date))
 # donations.data <- subset(donations.data, days_since_donation <= 350)
 # donations.data <- subset(donations.data, days_since_donation <= 180)
-donations.data <- subset(donations.data, days_since_donation <= 700)
+donations.data <- subset(donations.data, days_since_donation <= 350)
 
 # agg
 library(plyr)
@@ -84,15 +84,27 @@ donations.by.person.agg <- ddply(
   donations.data,
   .(donor_acctid),
   summarise,
+  
   total_donation_to_project=sum(donation_to_project),
+  max_donation_to_project=max(donation_to_project),
   mean_donation_to_project=mean(donation_to_project),
+  median_donation_to_project=median(donation_to_project),
+  
   total_donation_optional_support=sum(donation_optional_support),
-  mean_donation_optional_support=sum(donation_optional_support),
+  max_donation_optional_support=max(donation_optional_support),
+  mean_donation_optional_support=mean(donation_optional_support),
+  median_donation_optional_support=median(donation_optional_support),
+  
   total_donation_total=sum(donation_to_project+donation_optional_support),
+  max_donation_total=max(donation_to_project+donation_optional_support),
   mean_donation_total=mean(donation_to_project+donation_optional_support),
+  median_donation_total=median(donation_to_project+donation_optional_support),
+  
   min_days_since_donation=min(days_since_donation),
   max_days_since_donation=max(days_since_donation),
-  mean_days_since_donation=mean(days_since_donation)
+  mean_days_since_donation=mean(days_since_donation),
+  median_days_since_donation=median(days_since_donation)
+  
 )
 
 donations.by.person.agg <- subset(donations.by.person.agg, mean_donation_optional_support < 100000)

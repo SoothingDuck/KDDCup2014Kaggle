@@ -124,11 +124,12 @@ get.project.variables <- function(data) {
   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_area", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_district_restriction", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_county_restriction", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
+  # tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_city_big", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_district_big", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("month_posted", colnames(data))])
   
+  tmp <- tmp[! grepl("primary_focus_merge", tmp)]
   
   tmp <- union(tmp, c(
     # "school_state",

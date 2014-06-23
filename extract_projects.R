@@ -62,35 +62,35 @@ projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data
 # projects.data <- subset(projects.data, days_since_posted <= 1500)
 projects.data <- subset(projects.data, days_since_posted <= 350)
 
-# primary_subject:secondary_subject
-v <- make.sub.model.matrix(
-  projects.data, 
-  ~ primary_focus_subject:secondary_focus_subject,
-  "primary_focus_merge",
-  50
-  )
-projects.data <- merge(projects.data, v, by="projectid")
-# Fin primary_subject:secondary_subject
+# # primary_subject:secondary_subject
+# v <- make.sub.model.matrix(
+#   projects.data, 
+#   ~ primary_focus_subject:secondary_focus_subject,
+#   "primary_focus_merge",
+#   50
+#   )
+# projects.data <- merge(projects.data, v, by="projectid")
+# # Fin primary_subject:secondary_subject
 
-# primary_focus_area:primary_focus_subject
-v <- make.sub.model.matrix(
-  projects.data, 
-  ~ primary_focus_area:primary_focus_subject,
-  "primary_focus_merge",
-  50
-)
-projects.data <- merge(projects.data, v, by="projectid")
-# Fin primary_focus_area:primary_focus_subject
+# # primary_focus_area:primary_focus_subject
+# v <- make.sub.model.matrix(
+#   projects.data, 
+#   ~ primary_focus_area:primary_focus_subject,
+#   "primary_focus_merge",
+#   50
+# )
+# projects.data <- merge(projects.data, v, by="projectid")
+# # Fin primary_focus_area:primary_focus_subject
 
-# primary_area:secondary_area
-v <- make.sub.model.matrix(
-  projects.data, 
-  ~ primary_focus_area:secondary_focus_area,
-  "primary_focus_merge",
-  50
-)
-projects.data <- merge(projects.data, v, by="projectid")
-# Fin primary_area:secondary_area
+# # primary_area:secondary_area
+# v <- make.sub.model.matrix(
+#   projects.data, 
+#   ~ primary_focus_area:secondary_focus_area,
+#   "primary_focus_merge",
+#   50
+# )
+# projects.data <- merge(projects.data, v, by="projectid")
+# # Fin primary_area:secondary_area
 
 # school_city
 v <- make.sub.model.matrix(
