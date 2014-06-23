@@ -69,11 +69,13 @@ projects.data$date_posted <- ymd(projects.data$date_posted)
 projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data$date_posted)/(3600*24))
 # projects.data <- subset(projects.data, days_since_posted <= 350)
 # projects.data <- subset(projects.data, days_since_posted <= 180)
+projects.data <- subset(projects.data, days_since_posted <= 700)
 
 donations.data$donation_date <- ymd(substr(donations.data$donation_timestamp,1,10))
 donations.data$days_since_donation <- (as.integer(ymd("2014-05-12") - donations.data$donation_date))
 # donations.data <- subset(donations.data, days_since_donation <= 350)
 # donations.data <- subset(donations.data, days_since_donation <= 180)
+donations.data <- subset(donations.data, days_since_donation <= 700)
 
 # agg
 library(plyr)
