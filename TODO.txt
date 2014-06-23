@@ -1,6 +1,5 @@
-1.séparation month_posted
 
-statut donation
+1 => statut donation
 
 séparation zipcode => TODO
 séparation ville => TODO
