@@ -97,15 +97,24 @@ operations.on.data.set <- function(data) {
   data <- merge(data, semantic.need_statement.data, by="projectid")
   
   data <- merge(data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
+
   data$total_donation_to_project <- with(data, ifelse(is.na(total_donation_to_project), 0, total_donation_to_project))
+  data$median_donation_to_project <- with(data, ifelse(is.na(median_donation_to_project), 0, median_donation_to_project))
+  data$max_donation_to_project <- with(data, ifelse(is.na(max_donation_to_project), 0, max_donation_to_project))
   data$total_donation_optional_support <- with(data, ifelse(is.na(total_donation_optional_support), 0, total_donation_optional_support))
+  data$max_donation_optional_support <- with(data, ifelse(is.na(max_donation_optional_support), 0, max_donation_optional_support))
   data$mean_donation_to_project <- with(data, ifelse(is.na(mean_donation_to_project), 0, mean_donation_to_project))
+  data$median_donation_to_project <- with(data, ifelse(is.na(median_donation_to_project), 0, median_donation_to_project))
   data$mean_donation_optional_support <- with(data, ifelse(is.na(mean_donation_optional_support), 0, mean_donation_optional_support))
+  data$median_donation_optional_support <- with(data, ifelse(is.na(median_donation_optional_support), 0, median_donation_optional_support))
   data$total_donation_total <- with(data, ifelse(is.na(total_donation_total), 0, total_donation_total))
   data$mean_donation_total <- with(data, ifelse(is.na(mean_donation_total), 0, mean_donation_total))
+  data$median_donation_total <- with(data, ifelse(is.na(median_donation_total), 0, median_donation_total))
+  data$max_donation_total <- with(data, ifelse(is.na(max_donation_total), 0, max_donation_total))
   data$min_days_since_donation <- with(data, ifelse(is.na(min_days_since_donation), 5000, min_days_since_donation))
   data$max_days_since_donation <- with(data, ifelse(is.na(max_days_since_donation), 5000, max_days_since_donation))
   data$mean_days_since_donation <- with(data, ifelse(is.na(mean_days_since_donation), 5000, mean_days_since_donation))
+  data$median_days_since_donation <- with(data, ifelse(is.na(median_days_since_donation), 5000, median_days_since_donation))
   
   return(data)
 }
@@ -201,12 +210,14 @@ is.exciting.eval <- make.gbm.train.model.estimate(
 cat("auc is_exciting :",make.auc(is.exciting.eval), "\n")
 
 # is.exciting
+shrinkage.refined <- 0.05
+n.trees.refined <- 1000
 
 is.exciting.eval.refined <- make.gbm.train.model.important(
   variable="is_exciting",
   days.hist=nb.days,
-  shrinkage=0.005,
-  n.trees=5000,
+  shrinkage=shrinkage.refined,
+  n.trees=n.trees.refined,
   model.cols=is.exciting.eval$important.cols
 )
 
@@ -218,7 +229,7 @@ test.data <- make.projects.test(force=FALSE)
 prediction <- predict(
   is.exciting.eval.refined$model, 
   newdata=test.data[,is.exciting.eval$important.cols],
-  n.trees=5000, 
+  n.trees=n.trees.refined, 
   type="response"
   )
 
