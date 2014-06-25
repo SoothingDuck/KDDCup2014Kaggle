@@ -124,12 +124,18 @@ get.project.variables <- function(data) {
   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_area", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_district_restriction", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_county_restriction", colnames(data))])
-  # tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_city_big", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_district_big", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("month_posted", colnames(data))])
+#   tmp <- union(tmp, colnames(data)[grepl("school_metro", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("nb_", colnames(data))])
   
-  tmp <- tmp[! grepl("primary_focus_merge", tmp)]
+#   tmp <- tmp[! grepl("primary_focus_merge", tmp)]
+
+  tmp <- tmp[! grepl("nb_payment_methodpromo_code_match", tmp)]
+  tmp <- tmp[! grepl("nb_payment_methoddouble_your_impact_match", tmp)]
+  tmp <- tmp[! grepl("nb_payment_methodalmost_home_match", tmp)]
   
   tmp <- union(tmp, c(
     # "school_state",
@@ -170,7 +176,9 @@ get.project.variables <- function(data) {
     # "nb.projects.by.district",
     "nb.projects.by.county",
     # "school_district_factor",
-    "total_price_optional_support"
+    "total_price_optional_support",
+    "school_latitude",
+    "school_longitude"
   )
   )
   
@@ -397,7 +405,11 @@ operations.on.data.set <- function(data) {
   data$max_days_since_donation <- with(data, ifelse(is.na(max_days_since_donation), 5000, max_days_since_donation))
   data$mean_days_since_donation <- with(data, ifelse(is.na(mean_days_since_donation), 5000, mean_days_since_donation))
   data$median_days_since_donation <- with(data, ifelse(is.na(median_days_since_donation), 5000, median_days_since_donation))
-    
+  
+  for(variable.column in names(data)[grepl("nb_",names(data))]) {
+    data[,variable.column] <- ifelse(is.na(data[,variable.column]), 0, data[,variable.column])
+  }
+  
   return(data)
 }
 

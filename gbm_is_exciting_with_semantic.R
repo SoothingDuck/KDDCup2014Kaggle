@@ -7,7 +7,7 @@ gc(TRUE)
 nb.days <- 350
 
 shrinkage.eval <- 0.1
-n.trees.eval <- 300
+n.trees.eval <- 400
 
 is.exciting.eval <- make.gbm.train.model.estimate(
   variable="is_exciting",
@@ -28,7 +28,7 @@ cat("auc is_exciting :",make.auc(is.exciting.eval), "\n")
 
 # is.exciting
 shrinkage.refined <- 0.05
-n.trees.refined <- 1000
+n.trees.refined <- 2000
 
 is.exciting.eval.refined <- make.gbm.train.model.important(
   variable="is_exciting",
