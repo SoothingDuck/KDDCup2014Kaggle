@@ -103,11 +103,13 @@ donations.by.person.agg <- ddply(
   min_days_since_donation=min(days_since_donation),
   max_days_since_donation=max(days_since_donation),
   mean_days_since_donation=mean(days_since_donation),
-  median_days_since_donation=median(days_since_donation)
+  median_days_since_donation=median(days_since_donation),
   
+  nb_donation=length(donor_acctid)
 )
 
 donations.by.person.agg <- subset(donations.by.person.agg, mean_donation_optional_support < 100000)
+donations.by.person.agg <- subset(donations.by.person.agg, nb_donation < 10000)
 
 # # semantic
 # library(tm)

@@ -76,7 +76,21 @@ make.model.variable.list <- function(data) {
       "mean_days_since_donation",
       "median_days_since_donation"
       ))
-  
+
+#   nb_donation=length(donor_acctid)
+  all.cols <- union(
+    all.cols, 
+    c(
+      "nb_donation"
+    ))
+
+#   random_col
+  all.cols <- union(
+    all.cols, 
+    c(
+      "random_col"
+    ))
+
   model.cols <- all.cols
   # model.cols <- model.cols[! grepl("school_state", model.cols)]
   
@@ -115,6 +129,8 @@ operations.on.data.set <- function(data) {
   data$max_days_since_donation <- with(data, ifelse(is.na(max_days_since_donation), 5000, max_days_since_donation))
   data$mean_days_since_donation <- with(data, ifelse(is.na(mean_days_since_donation), 5000, mean_days_since_donation))
   data$median_days_since_donation <- with(data, ifelse(is.na(median_days_since_donation), 5000, median_days_since_donation))
+  
+  data$random_col <- runif(nrow(data))
   
   return(data)
 }
@@ -192,18 +208,21 @@ make.gbm.train.model.important <- function(variable, days.hist, shrinkage, n.tre
 
 nb.days <- 350
 
+shrinkage.eval <- 0.1
+n.trees.eval <- 300
+
 is.exciting.eval <- make.gbm.train.model.estimate(
   variable="is_exciting",
   days.hist=nb.days,
-  shrinkage=0.1,
-  n.trees=200
+  shrinkage=shrinkage.eval,
+  n.trees=n.trees.eval
   )
 
 # fully_funded.eval <- make.gbm.train.model.estimate(
 #   variable="fully_funded",
 #   days.hist=nb.days,
-#   shrinkage=0.1,
-#   n.trees=200
+#   shrinkage=shrinkage.eval,
+#   n.trees=n.trees.eval
 # )
 
 # cat("auc fully_funded :",make.auc(fully_funded.eval), "\n")
