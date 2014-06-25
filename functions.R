@@ -118,19 +118,21 @@ get.project.variables <- function(data) {
   tmp <- c()
   
   tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("primary_focus_subject", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("secondary_focus_subject", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("primary_focus_area", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("secondary_focus_area", colnames(data))])
+#   tmp <- union(tmp, colnames(data)[grepl("primary_focus_subject", colnames(data))])
+#   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_subject", colnames(data))])
+#   tmp <- union(tmp, colnames(data)[grepl("primary_focus_area", colnames(data))])
+#   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_area", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_district_restriction", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_county_restriction", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
+#   tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_city_big", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_district_big", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("month_posted", colnames(data))])
 #   tmp <- union(tmp, colnames(data)[grepl("school_metro", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("nb_", colnames(data))])
-  
+ 
+  tmp <- union(tmp, colnames(data)[grepl("teacher_project_", colnames(data))])
+
 #   tmp <- tmp[! grepl("primary_focus_merge", tmp)]
 
   tmp <- tmp[! grepl("nb_payment_methodpromo_code_match", tmp)]
@@ -176,9 +178,9 @@ get.project.variables <- function(data) {
     # "nb.projects.by.district",
     "nb.projects.by.county",
     # "school_district_factor",
-    "total_price_optional_support",
-    "school_latitude",
-    "school_longitude"
+    "total_price_optional_support"
+#     "school_latitude",
+#     "school_longitude"
   )
   )
   
