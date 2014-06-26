@@ -1,9 +1,9 @@
 source("functions.R")
+source("variables.R")
 source("extract_resources.R")
 
 projects.data <- get.projects.data(force=FALSE)
-# projects.data <- subset(projects.data, typedataset == "train")
-projects.data <- subset(projects.data, days_since_posted <= 350)
+projects.data <- subset(projects.data, days_since_posted <= nb.days)
 
 resources.data <- merge(resources.data, projects.data, by="projectid")
 
@@ -40,7 +40,7 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
-sparsed.dtm <- removeSparseTerms(dtm, 0.9)
+sparsed.dtm <- removeSparseTerms(dtm, 0.95)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
 sparsed.dtm.tmp <- data.frame(sparsed.dtm.tmp)
