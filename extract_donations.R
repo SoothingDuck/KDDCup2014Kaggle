@@ -63,26 +63,6 @@ donations.data <- dbGetQuery(
 dbDisconnect(con)
 donations.data <- donations.data[, colnames(donations.data) != "row_names"]
 
-donations.data$donor_city[donations.data$donor_city == ""] <- "Unknown"
-donations.data$is_teacher_acct <- with(donations.data, ifelse(is_teacher_acct == 't', 1, 0))
-
-tmp <- model.matrix(~ dollar_amount - 1, data=donations.data)
-donations.data <- cbind(donations.data, tmp)
-
-donations.data$donation_included_optional_support <- with(donations.data, ifelse(donation_included_optional_support == 't', 1, 0))
-
-tmp <- model.matrix(~ payment_method - 1, data=donations.data)
-donations.data <- cbind(donations.data, tmp)
-
-donations.data$payment_included_acct_credit <- with(donations.data, ifelse(payment_included_acct_credit == 't', 1, 0))
-donations.data$payment_included_campaign_gift_card <- with(donations.data, ifelse(payment_included_campaign_gift_card == 't', 1, 0))
-donations.data$payment_included_web_purchased_gift_card <- with(donations.data, ifelse(payment_included_web_purchased_gift_card == 't', 1, 0))
-donations.data$payment_was_promo_matched <- with(donations.data, ifelse(payment_was_promo_matched == 't', 1, 0))
-donations.data$via_giving_page <- with(donations.data, ifelse(via_giving_page == 't', 1, 0))
-donations.data$for_honoree <- with(donations.data, ifelse(for_honoree == 't', 1, 0))
-
-
-
 # selection
 library(lubridate)
 projects.data$date_posted <- ymd(projects.data$date_posted)
@@ -125,35 +105,11 @@ donations.by.person.agg <- ddply(
   mean_days_since_donation=mean(days_since_donation),
   median_days_since_donation=median(days_since_donation),
   
-  nb_donation=length(donor_acctid),
-  
-  nb_donation_included_optional_support=sum(donation_included_optional_support),
-  nb_payment_included_acct_credit=sum(payment_included_acct_credit),
-  nb_payment_included_campaign_gift_card=sum(payment_included_campaign_gift_card),
-  nb_payment_included_web_purchased_gift_card=sum(payment_included_web_purchased_gift_card),
-  nb_payment_was_promo_matched=sum(payment_was_promo_matched),
-  nb_via_giving_page=sum(via_giving_page),
-  nb_for_honoree=sum(for_honoree),
-  nb_dollar_amount10_to_100=sum(dollar_amount10_to_100),
-  nb_dollar_amount100_and_up=sum(dollar_amount100_and_up),
-  nb_dollar_amountunder_10=sum(dollar_amountunder_10),
-  nb_payment_methodalmost_home_match=sum(payment_methodalmost_home_match),
-  nb_payment_methodamazon=sum(payment_methodamazon),
-  nb_payment_methodcheck=sum(payment_methodcheck),
-  nb_payment_methodcreditcard=sum(payment_methodcreditcard),
-  nb_payment_methoddouble_your_impact_match=sum(payment_methoddouble_your_impact_match),
-  nb_payment_methodno_cash_received=sum(payment_methodno_cash_received),
-  nb_payment_methodpaypal=sum(payment_methodpaypal),
-  nb_payment_methodpromo_code_match=sum(payment_methodpromo_code_match)
-  
+  nb_donation=length(donor_acctid)
 )
 
 donations.by.person.agg <- subset(donations.by.person.agg, mean_donation_optional_support < 100000)
 donations.by.person.agg <- subset(donations.by.person.agg, nb_donation < 10000)
-donations.by.person.agg <- subset(donations.by.person.agg, nb_payment_methodpromo_code_match < 10000)
-
-rm(list=c("tmp"))
-gc(TRUE)
 
 # # semantic
 # library(tm)

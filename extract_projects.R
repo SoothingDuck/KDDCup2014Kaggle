@@ -122,25 +122,25 @@ t <- model.matrix(~ school_state, data=projects.data)
 projects.data <- cbind(projects.data, t[,grepl("school_state", colnames(t))])
 # Fin school_state
 
-# # school_district
-# projects.data$school_district <- factor(toupper(projects.data$school_district))
-# u <- data.frame(table(projects.data$school_district))
-# u <- u[order(-u$Freq),]
-# projects.data$school_district_restriction <- factor(ifelse(as.character(projects.data$school_district) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_district), "OTHER"))
-# t <- model.matrix(~ school_district_restriction, data=projects.data)
-# projects.data <- cbind(projects.data, t[,grepl("school_district_restriction", colnames(t))])
-# projects.data <- projects.data[, colnames(projects.data) != "school_district_restriction"]
-# # Fin school_district
+# school_district
+projects.data$school_district <- factor(toupper(projects.data$school_district))
+u <- data.frame(table(projects.data$school_district))
+u <- u[order(-u$Freq),]
+projects.data$school_district_restriction <- factor(ifelse(as.character(projects.data$school_district) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_district), "OTHER"))
+t <- model.matrix(~ school_district_restriction, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("school_district_restriction", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "school_district_restriction"]
+# Fin school_district
 
-# # school_county
-# projects.data$school_county <- factor(toupper(projects.data$school_county))
-# u <- data.frame(table(projects.data$school_county))
-# u <- u[order(-u$Freq),]
-# projects.data$school_county_restriction <- factor(ifelse(as.character(projects.data$school_county) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_county), "OTHER"))
-# t <- model.matrix(~ school_county_restriction, data=projects.data)
-# projects.data <- cbind(projects.data, t[,grepl("school_county_restriction", colnames(t))])
-# projects.data <- projects.data[, colnames(projects.data) != "school_county_restriction"]
-# # Fin school_county
+# school_county
+projects.data$school_county <- factor(toupper(projects.data$school_county))
+u <- data.frame(table(projects.data$school_county))
+u <- u[order(-u$Freq),]
+projects.data$school_county_restriction <- factor(ifelse(as.character(projects.data$school_county) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_county), "OTHER"))
+t <- model.matrix(~ school_county_restriction, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("school_county_restriction", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "school_county_restriction"]
+# Fin school_county
 
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
 
@@ -206,40 +206,6 @@ projects.data <- merge(projects.data, v, by="projectid")
 projects.data <- projects.data[, colnames(projects.data) != "month_posted"]
 # Fin school_city
 
-# all_student_reached
-tmp <- ddply(
-  projects.data,
-  .(teacher_acctid),
-  summarise,
-  
-  teacher_project_sum_total_price_excluding_optional_support=sum(total_price_excluding_optional_support),
-  teacher_project_mean_total_price_excluding_optional_support=mean(total_price_excluding_optional_support),
-  teacher_project_median_total_price_excluding_optional_support=median(total_price_excluding_optional_support),
-  teacher_project_max_total_price_excluding_optional_support=max(total_price_excluding_optional_support),
-  teacher_project_min_total_price_excluding_optional_support=min(total_price_excluding_optional_support),
-
-  teacher_project_sum_total_price_including_optional_support=sum(total_price_including_optional_support),
-  teacher_project_mean_total_price_including_optional_support=mean(total_price_including_optional_support),
-  teacher_project_median_total_price_including_optional_support=median(total_price_including_optional_support),
-  teacher_project_max_total_price_including_optional_support=max(total_price_including_optional_support),
-  teacher_project_min_total_price_including_optional_support=min(total_price_including_optional_support),
-  
-  teacher_project_sum_students_reached=sum(students_reached),
-  teacher_project_mean_students_reached=mean(students_reached),
-  teacher_project_median_students_reached=median(students_reached),
-  teacher_project_max_students_reached=max(students_reached),
-  teacher_project_min_students_reached=min(students_reached),
-  
-  teacher_project_sum_days_since_posted=sum(days_since_posted),
-  teacher_project_mean_days_since_posted=mean(days_since_posted),
-  teacher_project_median_days_since_posted=median(days_since_posted),
-  teacher_project_max_days_since_posted=max(days_since_posted),
-  teacher_project_min_days_since_posted=min(days_since_posted)
-  
-  )
-
-projects.data <- merge(projects.data, tmp, by="teacher_acctid")
-# fin all_student_reached
 
 
 agg <- ddply(projects.data,
