@@ -1,9 +1,10 @@
 source("functions.R")
+source("variables.R")
 source("extract_essays.R")
 
 projects.data <- get.projects.data(force=FALSE)
 # projects.data <- subset(projects.data, typedataset == "train")
-projects.data <- subset(projects.data, days_since_posted <= 350)
+projects.data <- subset(projects.data, days_since_posted <= nb.days)
 
 projects.data <- merge(projects.data, essays.data, by="projectid")
 
@@ -11,7 +12,7 @@ library(tm)
 library(plyr)
 
 print("selection")
-tmp <- projects.data[, names(projects.data) %in% c("projectid", "title", "short_description", "need_statement.y", "essay")]
+tmp <- projects.data[, names(projects.data) %in% c("projectid", "title.y", "short_description.y", "need_statement.y", "essay.y")]
 names(tmp) <- c("projectid", "title", "short_description", "need_statement", "essay")
 
 print("cleanup")
@@ -40,7 +41,7 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
-sparsed.dtm <- removeSparseTerms(dtm, 0.92)
+sparsed.dtm <- removeSparseTerms(dtm, 0.95)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
 sparsed.dtm.tmp <- data.frame(sparsed.dtm.tmp)
