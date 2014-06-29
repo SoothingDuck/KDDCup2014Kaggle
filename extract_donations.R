@@ -1,3 +1,5 @@
+source("variables.R")
+
 library(RSQLite)
 sqlitedb.filename <- file.path("db", "kdd_cup_data.sqlite3")
 
@@ -69,13 +71,13 @@ projects.data$date_posted <- ymd(projects.data$date_posted)
 projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data$date_posted)/(3600*24))
 # projects.data <- subset(projects.data, days_since_posted <= 350)
 # projects.data <- subset(projects.data, days_since_posted <= 180)
-projects.data <- subset(projects.data, days_since_posted <= 350)
+projects.data <- subset(projects.data, days_since_posted <= nb.days)
 
 donations.data$donation_date <- ymd(substr(donations.data$donation_timestamp,1,10))
 donations.data$days_since_donation <- (as.integer(ymd("2014-05-12") - donations.data$donation_date))
 # donations.data <- subset(donations.data, days_since_donation <= 350)
 # donations.data <- subset(donations.data, days_since_donation <= 180)
-donations.data <- subset(donations.data, days_since_donation <= 350)
+donations.data <- subset(donations.data, days_since_donation <= nb.days)
 
 # agg
 library(plyr)
@@ -110,6 +112,8 @@ donations.by.person.agg <- ddply(
 
 donations.by.person.agg <- subset(donations.by.person.agg, mean_donation_optional_support < 100000)
 donations.by.person.agg <- subset(donations.by.person.agg, nb_donation < 10000)
+
+save(donations.by.person.agg, file=file.path("tmp","donations_by_person_agg.RData"))
 
 # # semantic
 # library(tm)

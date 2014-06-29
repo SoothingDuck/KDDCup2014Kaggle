@@ -1,10 +1,6 @@
 source("functions.R")
-source("extract_donations.R")
-
-rm(list=c("donations.data"))
-gc(TRUE)
-
-nb.days <- 350
+source("variables.R")
+load(file=file.path("tmp","donations_by_person_agg.RData"))
 
 shrinkage.eval <- 0.1
 n.trees.eval <- 300

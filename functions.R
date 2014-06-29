@@ -49,6 +49,8 @@ get.projects.data <- function(force=FALSE, with.outcomes=FALSE) {
     load(projects.filename)
   }
   
+  projects.data <- subset(projects.data, ! is.na(total_price_project))
+  
   return(projects.data)
 }
 
@@ -366,17 +368,17 @@ make.model.variable.list <- function(data) {
 }
 
 operations.on.data.set <- function(data) {
-  load(file=file.path("tmp","semantic_item_name.RData"))
-  load(file=file.path("tmp","semantic_short_description.RData"))
-  load(file=file.path("tmp","semantic_title.RData"))
-  load(file=file.path("tmp","semantic_essay.RData"))
-  load(file=file.path("tmp","semantic_need_statement.RData"))
+#   load(file=file.path("tmp","semantic_item_name.RData"))
+#   load(file=file.path("tmp","semantic_short_description.RData"))
+#   load(file=file.path("tmp","semantic_title.RData"))
+#   load(file=file.path("tmp","semantic_essay.RData"))
+#   load(file=file.path("tmp","semantic_need_statement.RData"))
   
-  data <- merge(data, semantic.item_name.data, by="projectid")
-  data <- merge(data, semantic.short_description.data, by="projectid")
-  data <- merge(data, semantic.title.data, by="projectid")
-  data <- merge(data, semantic.essay.data, by="projectid")
-  data <- merge(data, semantic.need_statement.data, by="projectid")
+#   data <- merge(data, semantic.item_name.data, by="projectid")
+#   data <- merge(data, semantic.short_description.data, by="projectid")
+#   data <- merge(data, semantic.title.data, by="projectid")
+#   data <- merge(data, semantic.essay.data, by="projectid")
+#   data <- merge(data, semantic.need_statement.data, by="projectid")
   
   data <- merge(data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
   

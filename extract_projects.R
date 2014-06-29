@@ -1,4 +1,5 @@
 source("functions.R")
+source("variables.R")
 library(RSQLite)
 library(plyr)
 library(reshape2)
@@ -60,7 +61,7 @@ library(lubridate)
 projects.data$date_posted <- ymd(projects.data$date_posted)
 projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data$date_posted)/(3600*24))
 # projects.data <- subset(projects.data, days_since_posted <= 1500)
-projects.data <- subset(projects.data, days_since_posted <= 350)
+projects.data <- subset(projects.data, days_since_posted <= nb.days)
 
 # # primary_subject:secondary_subject
 # v <- make.sub.model.matrix(
