@@ -16,7 +16,7 @@ tmp <- projects.data[, names(projects.data) %in% c("projectid", "title.y", "shor
 names(tmp) <- c("projectid", "title", "short_description", "need_statement", "essay")
 
 print("cleanup")
-rm(list=c("essays.data", "projects.data"))
+rm(list=c("essays.data", "projects.data", "con", "drv", "sqlitedb.filename"))
 gc(TRUE)
 
 print("vectorize")
@@ -24,9 +24,16 @@ docs <- tmp$need_statement
 names(docs) <- as.character(tmp$projectid)
 ds <- VectorSource(docs)
 
+tmp <- tmp[,c("projectid")]
+
+rm(list=c("docs"))
+gc(TRUE)
 
 print("generation corpus")
 corpus <- VCorpus(ds)
+
+rm(list=c("ds"))
+gc(TRUE)
 
 print("generatition dtm")
 corpus <- tm_map(corpus, removeNumbers)
@@ -41,6 +48,9 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
+rm(list="corpus")
+gc(TRUE)
+
 sparsed.dtm <- removeSparseTerms(dtm, 0.95)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
@@ -51,7 +61,7 @@ colnames(sparsed.dtm.tmp) <- paste("word", "need_statement", colnames(sparsed.dt
 #   sparsed.dtm.tmp[, col] <- ifelse(sparsed.dtm.tmp[,col] > 0, 1, 0)
 # }
 
-sparsed.dtm.tmp$projectid <- tmp$projectid
+sparsed.dtm.tmp$projectid <- tmp
 
 semantic.need_statement.data <- sparsed.dtm.tmp
 
