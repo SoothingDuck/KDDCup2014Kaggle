@@ -4,3 +4,5 @@ projects.train.is.exciting.all <- get.projects.data.train(force=TRUE, variable="
 
 projects.train.is.exciting.all <- get.projects.data.test(force=TRUE)
 
+rm(list=ls())
+gc(TRUE)

@@ -56,3 +56,6 @@ sparsed.dtm.tmp$projectid <- tmp$projectid
 semantic.short_description.data <- sparsed.dtm.tmp
 
 save(semantic.short_description.data, file=file.path("tmp","semantic_short_description.RData"))
+
+rm(list=ls())
+gc(TRUE)
