@@ -24,9 +24,15 @@ docs <- tmp$short_description
 names(docs) <- as.character(tmp$projectid)
 ds <- VectorSource(docs)
 
+tmp <- tmp[,c("projectid")]
+rm(list=c("con", "docs", "drv", "sqlitedb.filename"))
+gc(TRUE)
 
 print("generation corpus")
 corpus <- VCorpus(ds)
+
+rm(list=c("ds"))
+gc(TRUE)
 
 print("generatition dtm")
 corpus <- tm_map(corpus, removeNumbers)
@@ -41,6 +47,9 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
+rm(list=c("corpus"))
+gc(TRUE)
+
 sparsed.dtm <- removeSparseTerms(dtm, 0.90)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
@@ -51,7 +60,7 @@ colnames(sparsed.dtm.tmp) <- paste("word", "short_description", colnames(sparsed
 #   sparsed.dtm.tmp[, col] <- ifelse(sparsed.dtm.tmp[,col] > 0, 1, 0)
 # }
 
-sparsed.dtm.tmp$projectid <- tmp$projectid
+sparsed.dtm.tmp$projectid <- tmp
 
 semantic.short_description.data <- sparsed.dtm.tmp
 
