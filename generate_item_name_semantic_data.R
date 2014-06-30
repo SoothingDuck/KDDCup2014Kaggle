@@ -7,6 +7,9 @@ projects.data <- subset(projects.data, days_since_posted <= nb.days)
 
 resources.data <- merge(resources.data, projects.data, by="projectid")
 
+rm(list=c("projects.data", "resources.by.type"))
+gc(TRUE)
+
 library(tm)
 library(plyr)
 
@@ -23,9 +26,16 @@ docs <- tmp$item_list
 names(docs) <- as.character(tmp$projectid)
 ds <- VectorSource(docs)
 
+tmp <- tmp[, c("projectid")]
+
+rm(list=c("docs", "resources.data"))
+gc(TRUE)
 
 print("generation corpus")
 corpus <- VCorpus(ds)
+
+rm(list=c("ds"))
+gc(TRUE)
 
 print("generatition dtm")
 corpus <- tm_map(corpus, removeNumbers)
@@ -40,6 +50,9 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
+rm(list=c("corpus"))
+gc(TRUE)
+
 sparsed.dtm <- removeSparseTerms(dtm, 0.95)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
@@ -50,7 +63,7 @@ colnames(sparsed.dtm.tmp) <- paste("word", "item_name", colnames(sparsed.dtm.tmp
 #   sparsed.dtm.tmp[, col] <- ifelse(sparsed.dtm.tmp[,col] > 0, 1, 0)
 # }
 
-sparsed.dtm.tmp$projectid <- tmp$projectid
+sparsed.dtm.tmp$projectid <- tmp
 
 semantic.item_name.data <- sparsed.dtm.tmp
 
