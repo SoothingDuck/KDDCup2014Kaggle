@@ -1,9 +1,10 @@
 source("functions.R")
+source("variables.R")
 source("extract_essays.R")
 
 projects.data <- get.projects.data(force=FALSE)
 # projects.data <- subset(projects.data, typedataset == "train")
-projects.data <- subset(projects.data, days_since_posted <= 350)
+projects.data <- subset(projects.data, days_since_posted <= nb.days)
 
 projects.data <- merge(projects.data, essays.data, by="projectid")
 
@@ -11,7 +12,7 @@ library(tm)
 library(plyr)
 
 print("selection")
-tmp <- projects.data[, names(projects.data) %in% c("projectid", "title", "short_description", "need_statement.y", "essay")]
+tmp <- projects.data[, names(projects.data) %in% c("projectid", "title.y", "short_description.y", "need_statement.y", "essay.y")]
 names(tmp) <- c("projectid", "title", "short_description", "need_statement", "essay")
 
 print("cleanup")
@@ -23,9 +24,17 @@ docs <- tmp$title
 names(docs) <- as.character(tmp$projectid)
 ds <- VectorSource(docs)
 
+tmp <- tmp[,c("projectid")]
+gc(TRUE)
+
+rm(list=c("con", "docs", "drv", "sqlitedb.filename"))
+gc(TRUE)
 
 print("generation corpus")
 corpus <- VCorpus(ds)
+
+rm(list="ds")
+gc(TRUE)
 
 print("generatition dtm")
 corpus <- tm_map(corpus, removeNumbers)
@@ -40,7 +49,10 @@ dtm <- DocumentTermMatrix(corpus,
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
-sparsed.dtm <- removeSparseTerms(dtm, 0.97)
+rm(list=c("corpus"))
+gc(TRUE)
+
+sparsed.dtm <- removeSparseTerms(dtm, 0.98)
 
 sparsed.dtm.tmp <- inspect(sparsed.dtm)
 sparsed.dtm.tmp <- data.frame(sparsed.dtm.tmp)
@@ -50,7 +62,7 @@ colnames(sparsed.dtm.tmp) <- paste("word", "title", colnames(sparsed.dtm.tmp), s
 #   sparsed.dtm.tmp[, col] <- ifelse(sparsed.dtm.tmp[,col] > 0, 1, 0)
 # }
 
-sparsed.dtm.tmp$projectid <- tmp$projectid
+sparsed.dtm.tmp$projectid <- tmp
 
 semantic.title.data <- sparsed.dtm.tmp
 
