@@ -23,7 +23,7 @@ is.exciting.eval <- make.gbm.train.model.estimate(
 cat("auc is_exciting :",make.auc(is.exciting.eval), "\n")
 
 # is.exciting
-shrinkage.refined <- 0.05
+shrinkage.refined <- 0.03
 n.trees.refined <- 1000
 
 is.exciting.eval.refined <- make.gbm.train.model.important(
