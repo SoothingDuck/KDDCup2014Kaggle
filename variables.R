@@ -1,1 +1,1 @@
-nb.days <- 700
+nb.days <- 200

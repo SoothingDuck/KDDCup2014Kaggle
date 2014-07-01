@@ -2,7 +2,7 @@ source("functions.R")
 source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
-shrinkage.eval <- 0.05
+shrinkage.eval <- 0.02
 n.trees.eval <- 500
 
 is.exciting.eval <- make.gbm.train.model.estimate(

@@ -1,5 +1,5 @@
 Fait : 700 days avec days_with_posted 0.63149
 Fait : 700 days sans days_with_posted 0.61503
 Fait : 700 days avec semantics avec days_with_posted et sans year_posted 0.61993
-A faire : 700 days avec days_with_posted only et sans semantics
+Fait : 700 days avec days_with_posted only et sans semantics 0.62834
 A faire  : 200 days avec semantics
