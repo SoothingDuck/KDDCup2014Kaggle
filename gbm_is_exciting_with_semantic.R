@@ -3,7 +3,7 @@ source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
 shrinkage.eval <- 0.05
-n.trees.eval <- 300
+n.trees.eval <- 500
 
 is.exciting.eval <- make.gbm.train.model.estimate(
   variable="is_exciting",
@@ -23,8 +23,8 @@ is.exciting.eval <- make.gbm.train.model.estimate(
 cat("auc is_exciting :",make.auc(is.exciting.eval), "\n")
 
 # is.exciting
-shrinkage.refined <- 0.02
-n.trees.refined <- 1000
+shrinkage.refined <- 0.01
+n.trees.refined <- 3500
 
 is.exciting.eval.refined <- make.gbm.train.model.important(
   variable="is_exciting",

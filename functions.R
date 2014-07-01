@@ -127,7 +127,7 @@ get.project.variables <- function(data) {
   
   tmp <- c()
   
-  tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
+  # tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_subject", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_subject", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_area", colnames(data))])
@@ -137,7 +137,7 @@ get.project.variables <- function(data) {
   # tmp <- union(tmp, colnames(data)[grepl("primary_focus_merge", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_city_big", colnames(data))])
   # tmp <- union(tmp, colnames(data)[grepl("school_district_big", colnames(data))])
-  tmp <- union(tmp, colnames(data)[grepl("month_posted", colnames(data))])
+  # tmp <- union(tmp, colnames(data)[grepl("month_posted", colnames(data))])
   
   tmp <- tmp[! grepl("primary_focus_merge", tmp)]
   
@@ -166,7 +166,7 @@ get.project.variables <- function(data) {
     # "school_ncesid_status",
     # "month_posted",
     # "year_posted",
-    "day_of_week_posted",
+    # "day_of_week_posted",
     # "nb.distinct.school.by.ncesid",
     "total_price_excluding_optional_support",
     "total_price_including_optional_support",
@@ -377,17 +377,17 @@ make.model.variable.list <- function(data) {
 
 operations.on.data.set <- function(data) {
 
-  load(file=file.path("tmp","semantic_item_name.RData"))
-  load(file=file.path("tmp","semantic_short_description.RData"))
-  load(file=file.path("tmp","semantic_title.RData"))
-  load(file=file.path("tmp","semantic_essay.RData"))
-  load(file=file.path("tmp","semantic_need_statement.RData"))
-  
-  data <- merge(data, semantic.item_name.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.short_description.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
+#   load(file=file.path("tmp","semantic_item_name.RData"))
+#   load(file=file.path("tmp","semantic_short_description.RData"))
+#   load(file=file.path("tmp","semantic_title.RData"))
+#   load(file=file.path("tmp","semantic_essay.RData"))
+#   load(file=file.path("tmp","semantic_need_statement.RData"))
+#   
+#   data <- merge(data, semantic.item_name.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.short_description.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
   
   for(col in names(data)[grepl("word.", names(data))]) {
     data[, col] <- ifelse(is.na(data[, col]), 0, data[, col])
