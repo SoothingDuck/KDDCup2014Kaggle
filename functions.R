@@ -171,7 +171,7 @@ get.project.variables <- function(data) {
     "total_price_excluding_optional_support",
     "total_price_including_optional_support",
     "students_reached",
-    # "days_since_posted",
+    "days_since_posted",
     "nb.projects.for.school",
     "nb.projects.for.teacher",
     # "nb.projects.by.state",
@@ -376,17 +376,22 @@ make.model.variable.list <- function(data) {
 }
 
 operations.on.data.set <- function(data) {
-#   load(file=file.path("tmp","semantic_item_name.RData"))
-#   load(file=file.path("tmp","semantic_short_description.RData"))
-#   load(file=file.path("tmp","semantic_title.RData"))
-#   load(file=file.path("tmp","semantic_essay.RData"))
-#   load(file=file.path("tmp","semantic_need_statement.RData"))
+
+  load(file=file.path("tmp","semantic_item_name.RData"))
+  load(file=file.path("tmp","semantic_short_description.RData"))
+  load(file=file.path("tmp","semantic_title.RData"))
+  load(file=file.path("tmp","semantic_essay.RData"))
+  load(file=file.path("tmp","semantic_need_statement.RData"))
   
-#   data <- merge(data, semantic.item_name.data, by="projectid")
-#   data <- merge(data, semantic.short_description.data, by="projectid")
-#   data <- merge(data, semantic.title.data, by="projectid")
-#   data <- merge(data, semantic.essay.data, by="projectid")
-#   data <- merge(data, semantic.need_statement.data, by="projectid")
+  data <- merge(data, semantic.item_name.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.short_description.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
+  
+  for(col in names(data)[grepl("word.", names(data))]) {
+    data[, col] <- ifelse(is.na(data[, col]), 0, data[, col])
+  }
   
   data <- merge(data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
   

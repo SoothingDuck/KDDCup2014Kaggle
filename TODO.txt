@@ -1,3 +1,4 @@
 En cours : 700 days avec days_with_posted 0.63149
-En cours : 700 days sans days_with_posted
+En cours : 700 days sans days_with_posted 0.61503
 A faire  : 700 days avec semantics
+A faire  : 200 days avec semantics
