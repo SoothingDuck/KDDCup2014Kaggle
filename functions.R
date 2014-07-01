@@ -18,6 +18,14 @@ init.data <- function() {
   projects.data <- merge(projects.data, essays.data, by=c("projectid"), all.x=TRUE)
   projects.data <- merge(projects.data, resources.by.type, by=c("projectid"), all.x=TRUE)
   
+  for(col in names(projects.data)[grepl("_resource", names(projects.data))]) {
+    projects.data[, col] <- ifelse(is.na(projects.data[, col]), 0, projects.data[, col])
+  }
+  
+  for(col in c("total_price_project", "nb_item_project", "nb_distinct_vendors_project")) {
+    projects.data[, col] <- ifelse(is.na(projects.data[, col]), 0, projects.data[, col])    
+  }
+  
   return(projects.data)
 }
 
@@ -385,21 +393,26 @@ operations.on.data.set <- function(data) {
   data$total_donation_to_project <- with(data, ifelse(is.na(total_donation_to_project), 0, total_donation_to_project))
   data$median_donation_to_project <- with(data, ifelse(is.na(median_donation_to_project), 0, median_donation_to_project))
   data$max_donation_to_project <- with(data, ifelse(is.na(max_donation_to_project), 0, max_donation_to_project))
+  data$mean_donation_to_project <- with(data, ifelse(is.na(mean_donation_to_project), 0, mean_donation_to_project))
+  
   data$total_donation_optional_support <- with(data, ifelse(is.na(total_donation_optional_support), 0, total_donation_optional_support))
   data$max_donation_optional_support <- with(data, ifelse(is.na(max_donation_optional_support), 0, max_donation_optional_support))
-  data$mean_donation_to_project <- with(data, ifelse(is.na(mean_donation_to_project), 0, mean_donation_to_project))
-  data$median_donation_to_project <- with(data, ifelse(is.na(median_donation_to_project), 0, median_donation_to_project))
   data$mean_donation_optional_support <- with(data, ifelse(is.na(mean_donation_optional_support), 0, mean_donation_optional_support))
   data$median_donation_optional_support <- with(data, ifelse(is.na(median_donation_optional_support), 0, median_donation_optional_support))
+
+  
   data$total_donation_total <- with(data, ifelse(is.na(total_donation_total), 0, total_donation_total))
   data$mean_donation_total <- with(data, ifelse(is.na(mean_donation_total), 0, mean_donation_total))
   data$median_donation_total <- with(data, ifelse(is.na(median_donation_total), 0, median_donation_total))
   data$max_donation_total <- with(data, ifelse(is.na(max_donation_total), 0, max_donation_total))
+  
   data$min_days_since_donation <- with(data, ifelse(is.na(min_days_since_donation), 5000, min_days_since_donation))
   data$max_days_since_donation <- with(data, ifelse(is.na(max_days_since_donation), 5000, max_days_since_donation))
   data$mean_days_since_donation <- with(data, ifelse(is.na(mean_days_since_donation), 5000, mean_days_since_donation))
   data$median_days_since_donation <- with(data, ifelse(is.na(median_days_since_donation), 5000, median_days_since_donation))
-    
+
+  data$nb_donation <- with(data, ifelse(is.na(nb_donation), 0, nb_donation))
+  
   return(data)
 }
 

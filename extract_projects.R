@@ -123,25 +123,25 @@ t <- model.matrix(~ school_state, data=projects.data)
 projects.data <- cbind(projects.data, t[,grepl("school_state", colnames(t))])
 # Fin school_state
 
-# school_district
-projects.data$school_district <- factor(toupper(projects.data$school_district))
-u <- data.frame(table(projects.data$school_district))
-u <- u[order(-u$Freq),]
-projects.data$school_district_restriction <- factor(ifelse(as.character(projects.data$school_district) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_district), "OTHER"))
-t <- model.matrix(~ school_district_restriction, data=projects.data)
-projects.data <- cbind(projects.data, t[,grepl("school_district_restriction", colnames(t))])
-projects.data <- projects.data[, colnames(projects.data) != "school_district_restriction"]
-# Fin school_district
+# # school_district
+# projects.data$school_district <- factor(toupper(projects.data$school_district))
+# u <- data.frame(table(projects.data$school_district))
+# u <- u[order(-u$Freq),]
+# projects.data$school_district_restriction <- factor(ifelse(as.character(projects.data$school_district) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_district), "OTHER"))
+# t <- model.matrix(~ school_district_restriction, data=projects.data)
+# projects.data <- cbind(projects.data, t[,grepl("school_district_restriction", colnames(t))])
+# projects.data <- projects.data[, colnames(projects.data) != "school_district_restriction"]
+# # Fin school_district
 
-# school_county
-projects.data$school_county <- factor(toupper(projects.data$school_county))
-u <- data.frame(table(projects.data$school_county))
-u <- u[order(-u$Freq),]
-projects.data$school_county_restriction <- factor(ifelse(as.character(projects.data$school_county) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_county), "OTHER"))
-t <- model.matrix(~ school_county_restriction, data=projects.data)
-projects.data <- cbind(projects.data, t[,grepl("school_county_restriction", colnames(t))])
-projects.data <- projects.data[, colnames(projects.data) != "school_county_restriction"]
-# Fin school_county
+# # school_county
+# projects.data$school_county <- factor(toupper(projects.data$school_county))
+# u <- data.frame(table(projects.data$school_county))
+# u <- u[order(-u$Freq),]
+# projects.data$school_county_restriction <- factor(ifelse(as.character(projects.data$school_county) %in% as.character(u$Var1[1:100]), as.character(projects.data$school_county), "OTHER"))
+# t <- model.matrix(~ school_county_restriction, data=projects.data)
+# projects.data <- cbind(projects.data, t[,grepl("school_county_restriction", colnames(t))])
+# projects.data <- projects.data[, colnames(projects.data) != "school_county_restriction"]
+# # Fin school_county
 
 projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
 
