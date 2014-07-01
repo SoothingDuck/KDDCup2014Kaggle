@@ -309,13 +309,15 @@ make.model.variable.list <- function(data) {
   #   max_donation_to_project=max(donation_to_project),
   #   mean_donation_to_project=mean(donation_to_project),
   #   median_donation_to_project=median(donation_to_project),
+  #   sd_donation_to_project=median(donation_to_project),
   all.cols <- union(
     all.cols,
     c(
       "total_donation_to_project", 
       "max_donation_to_project",
       "mean_donation_to_project",
-      "median_donation_to_project"
+      "median_donation_to_project",
+      "sd_donation_to_project"
     )
   )
   
@@ -323,13 +325,15 @@ make.model.variable.list <- function(data) {
   #   max_donation_optional_support=max(donation_optional_support),
   #   mean_donation_optional_support=mean(donation_optional_support),
   #   median_donation_optional_support=median(donation_optional_support),
+  #   sd_donation_optional_support=median(donation_optional_support),
   all.cols <- union(
     all.cols, 
     c(
       "total_donation_optional_support", 
       "max_donation_optional_support",
       "mean_donation_optional_support",
-      "median_donation_optional_support"
+      "median_donation_optional_support",
+      "sd_donation_optional_support"
     )
   )
   
@@ -337,13 +341,15 @@ make.model.variable.list <- function(data) {
   #   max_donation_total=max(donation_to_project+donation_optional_support),
   #   mean_donation_total=mean(donation_to_project+donation_optional_support),
   #   median_donation_total=median(donation_to_project+donation_optional_support),
+  #   sd_donation_total=median(donation_to_project+donation_optional_support),
   all.cols <- union(
     all.cols, 
     c(
       "total_donation_total", 
       "max_donation_total",
       "mean_donation_total",
-      "median_donation_total"
+      "median_donation_total",
+      "sd_donation_total"
     )
   )
   
@@ -352,20 +358,23 @@ make.model.variable.list <- function(data) {
   #   max_days_since_donation=max(days_since_donation),
   #   mean_days_since_donation=mean(days_since_donation),
   #   median_days_since_donation=median(days_since_donation)  
+  #   sd_days_since_donation=median(days_since_donation)  
   all.cols <- union(
     all.cols, 
     c(
       "min_days_since_donation", 
       "max_days_since_donation",
       "mean_days_since_donation",
-      "median_days_since_donation"
+      "median_days_since_donation",
+      "sd_days_since_donation"
     ))
   
   #   nb_donation=length(donor_acctid)
   all.cols <- union(
     all.cols, 
     c(
-      "nb_donation"
+      "nb_donation",
+      "is_teacher_donator"
     ))
   
   
@@ -395,6 +404,8 @@ operations.on.data.set <- function(data) {
   
   data <- merge(data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
   
+  data$is_teacher_donator <- with(data, ifelse(is.na(total_donation_to_project), 0, 1))
+
   data$total_donation_to_project <- with(data, ifelse(is.na(total_donation_to_project), 0, total_donation_to_project))
   data$median_donation_to_project <- with(data, ifelse(is.na(median_donation_to_project), 0, median_donation_to_project))
   data$max_donation_to_project <- with(data, ifelse(is.na(max_donation_to_project), 0, max_donation_to_project))
@@ -421,7 +432,7 @@ operations.on.data.set <- function(data) {
   return(data)
 }
 
-make.projects.train <-  function(variable, days.hist, force=FALSE, percent.train=0.7) {
+make.projects.train <-  function(variable, days.hist, force=FALSE, percent.train=0.95) {
   projects.train.is.exciting.all <- get.projects.data.train(force=force, variable=variable)
   projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= days.hist)
   
