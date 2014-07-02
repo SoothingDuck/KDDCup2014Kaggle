@@ -82,6 +82,16 @@ donations.data <- subset(donations.data, days_since_donation <= 1350)
 # agg
 library(plyr)
 
+donations.data <- donations.data[order(donations.data$donor_acctid, donations.data$days_since_donation),]
+
+mean.diff.days <- function(vec) {
+	return(mean(diff(c(0, vec))))
+}
+
+median.diff.days <- function(vec) {
+	return(median(diff(c(0, vec))))
+}
+
 donations.by.person.agg <- ddply(
   donations.data,
   .(donor_acctid),
@@ -110,6 +120,8 @@ donations.by.person.agg <- ddply(
   mean_days_since_donation=mean(days_since_donation),
   median_days_since_donation=mean(days_since_donation),
   sd_days_since_donation=sd(days_since_donation),
+  mean_diff_days_since_donation=mean.diff.days(days_since_donation),
+  median_diff_days_since_donation=median.diff.days(days_since_donation),
   
   nb_donation=length(donor_acctid)
 )

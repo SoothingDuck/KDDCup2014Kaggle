@@ -367,7 +367,9 @@ make.model.variable.list <- function(data, with.donators) {
         "max_days_since_donation",
         "mean_days_since_donation",
         "median_days_since_donation",
-        "sd_days_since_donation"
+        "sd_days_since_donation",
+	"mean_diff_days_since_donation",
+	"median_diff_days_since_donation"
       ))
     
     #   nb_donation=length(donor_acctid)
@@ -388,17 +390,17 @@ make.model.variable.list <- function(data, with.donators) {
 
 operations.on.data.set <- function(data, with.donators) {
 
-#   load(file=file.path("tmp","semantic_item_name.RData"))
-#   load(file=file.path("tmp","semantic_short_description.RData"))
-#   load(file=file.path("tmp","semantic_title.RData"))
-#   load(file=file.path("tmp","semantic_essay.RData"))
-#   load(file=file.path("tmp","semantic_need_statement.RData"))
-#   
-#   data <- merge(data, semantic.item_name.data, by="projectid", all.x=TRUE)
-#   data <- merge(data, semantic.short_description.data, by="projectid", all.x=TRUE)
-#   data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
-#   data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
-#   data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
+  load(file=file.path("tmp","semantic_item_name.RData"))
+  load(file=file.path("tmp","semantic_short_description.RData"))
+  load(file=file.path("tmp","semantic_title.RData"))
+  load(file=file.path("tmp","semantic_essay.RData"))
+  load(file=file.path("tmp","semantic_need_statement.RData"))
+  
+  data <- merge(data, semantic.item_name.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.short_description.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
+  data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
   
   for(col in names(data)[grepl("word.", names(data))]) {
     data[, col] <- ifelse(is.na(data[, col]), 0, data[, col])
@@ -432,6 +434,8 @@ operations.on.data.set <- function(data, with.donators) {
     data$mean_days_since_donation <- with(data, ifelse(is.na(mean_days_since_donation), 5000, mean_days_since_donation))
     data$median_days_since_donation <- with(data, ifelse(is.na(median_days_since_donation), 5000, median_days_since_donation))
     data$sd_days_since_donation <- with(data, ifelse(is.na(sd_days_since_donation), 0, sd_days_since_donation))
+    data$mean_diff_days_since_donation <- with(data, ifelse(is.na(mean_diff_days_since_donation), 0, mean_diff_days_since_donation))
+    data$median_diff_days_since_donation <- with(data, ifelse(is.na(median_diff_days_since_donation), 0, median_diff_days_since_donation))
     
     data$nb_donation <- with(data, ifelse(is.na(nb_donation), 0, nb_donation))
     
@@ -490,9 +494,9 @@ make.gbm.train.model.estimate <- function(variable, days.hist, shrinkage, n.tree
   ))
 }
 
-make.gbm.train.model.important <- function(variable, days.hist, shrinkage, n.trees, model.cols, force=FALSE, percent.train=0.95) {
+make.gbm.train.model.important <- function(variable, days.hist, shrinkage, n.trees, model.cols, force=FALSE, percent.train=0.95, with.donators=TRUE) {
   
-  projects.train.is.exciting <- make.projects.train(variable, days.hist, force=force, percent.train=percent.train)
+  projects.train.is.exciting <- make.projects.train(variable, days.hist, force=force, percent.train=percent.train, with.donators=with.donators)
   
   model.is.exciting <- get.gbm.model(
     xtrain=projects.train.is.exciting$train[,model.cols], 

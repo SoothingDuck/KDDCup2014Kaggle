@@ -2,7 +2,7 @@ source("functions.R")
 source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
-shrinkage.eval <- 0.03
+shrinkage.eval <- 0.5
 n.trees.eval <- 500
 
 is.exciting.eval.with.donators <- make.gbm.train.model.estimate(
@@ -10,7 +10,7 @@ is.exciting.eval.with.donators <- make.gbm.train.model.estimate(
   days.hist=nb.days,
   shrinkage=shrinkage.eval,
   n.trees=n.trees.eval,
-  with.donators=FALSE,
+  with.donators=TRUE,
   percent.train=.95
 )
 
@@ -31,37 +31,64 @@ is.exciting.eval.without.donators <- make.gbm.train.model.estimate(
 # )
 
 # cat("auc fully_funded :",make.auc(fully_funded.eval), "\n")
-cat("auc is_exciting :",make.auc(is.exciting.eval), "\n")
+cat("auc is_exciting with donators    :",make.auc(is.exciting.eval.with.donators), "\n")
+cat("auc is_exciting without donators :",make.auc(is.exciting.eval.without.donators), "\n")
 
 # is.exciting
-shrinkage.refined <- 0.01
-n.trees.refined <- 3500
+shrinkage.refined <- 0.1
+n.trees.refined <- 10000
 
-is.exciting.eval.refined <- make.gbm.train.model.important(
+is.exciting.eval.with.donators.refined <- make.gbm.train.model.important(
   variable="is_exciting",
   days.hist=nb.days,
   shrinkage=shrinkage.refined,
   n.trees=n.trees.refined,
-  model.cols=is.exciting.eval$important.cols
+  model.cols=is.exciting.eval.with.donators$important.cols,
+  with.donators=TRUE
 )
 
-cat("auc is_exciting :",make.auc(is.exciting.eval.refined), "\n")
+is.exciting.eval.without.donators.refined <- make.gbm.train.model.important(
+  variable="is_exciting",
+  days.hist=nb.days,
+  shrinkage=shrinkage.refined,
+  n.trees=n.trees.refined,
+  model.cols=is.exciting.eval.without.donators$important.cols,
+  with.donators=FALSE
+)
 
+cat("auc is_exciting with    donators :",make.auc(is.exciting.eval.with.donators.refined), "\n")
+cat("auc is_exciting without donators :",make.auc(is.exciting.eval.without.donators.refined), "\n")
 
-test.data <- make.projects.test(force=FALSE)
+test.data.with.donators <- make.projects.test(force=FALSE, with.donators=TRUE)
+test.data.without.donators <- make.projects.test(force=FALSE, with.donators=FALSE)
 
-prediction <- predict(
-  is.exciting.eval.refined$model, 
-  newdata=test.data[,is.exciting.eval$important.cols],
+prediction.with.donators <- predict(
+  is.exciting.eval.with.donators.refined$model, 
+  newdata=test.data.with.donators[,is.exciting.eval.with.donators.refined$important.cols],
   n.trees=n.trees.refined, 
   type="response"
   )
 
-df <- data.frame(
-  projectid=test.data$projectid,
-  is_exciting=prediction,
+df.with.donators <- data.frame(
+  projectid=test.data.with.donators$projectid,
+  is_exciting=prediction.with.donators,
   stringsAsFactors=FALSE
   )
+
+prediction.without.donators <- predict(
+  is.exciting.eval.without.donators.refined$model, 
+  newdata=test.data.without.donators[,is.exciting.eval.without.donators.refined$important.cols],
+  n.trees=n.trees.refined, 
+  type="response"
+)
+
+df.without.donators <- data.frame(
+  projectid=test.data.without.donators$projectid,
+  is_exciting=prediction.without.donators,
+  stringsAsFactors=FALSE
+)
+
+df <- rbind(df.with.donators, df.without.donators)
 
 write.csv(
   x=df, 
