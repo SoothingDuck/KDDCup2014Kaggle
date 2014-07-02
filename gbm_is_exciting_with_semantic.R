@@ -2,8 +2,8 @@ source("functions.R")
 source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
-shrinkage.eval <- 0.5
-n.trees.eval <- 500
+shrinkage.eval <- 0.2
+n.trees.eval <- 50
 
 is.exciting.eval.with.donators <- make.gbm.train.model.estimate(
   variable="is_exciting",
@@ -35,7 +35,7 @@ cat("auc is_exciting with donators    :",make.auc(is.exciting.eval.with.donators
 cat("auc is_exciting without donators :",make.auc(is.exciting.eval.without.donators), "\n")
 
 # is.exciting
-shrinkage.refined <- 0.05
+shrinkage.refined <- 0.02
 n.trees.refined <- 1000
 
 is.exciting.eval.with.donators.refined <- make.gbm.train.model.important(
