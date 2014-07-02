@@ -35,8 +35,8 @@ cat("auc is_exciting with donators    :",make.auc(is.exciting.eval.with.donators
 cat("auc is_exciting without donators :",make.auc(is.exciting.eval.without.donators), "\n")
 
 # is.exciting
-shrinkage.refined <- 0.1
-n.trees.refined <- 10000
+shrinkage.refined <- 0.05
+n.trees.refined <- 1000
 
 is.exciting.eval.with.donators.refined <- make.gbm.train.model.important(
   variable="is_exciting",

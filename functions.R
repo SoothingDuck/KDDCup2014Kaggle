@@ -127,7 +127,7 @@ get.project.variables <- function(data) {
   
   tmp <- c()
   
-  # tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_subject", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_subject", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_area", colnames(data))])
@@ -305,6 +305,8 @@ make.model.variable.list <- function(data, with.donators) {
   all.cols <- get.all.variables(data)
   all.cols <- union(all.cols, colnames(data)[grepl("word", colnames(data))])
   
+  all.cols <- union(all.cols, c("count.word"))
+  
   if(with.donators) {
     #   total_donation_to_project=sum(donation_to_project),
     #   max_donation_to_project=max(donation_to_project),
@@ -401,10 +403,13 @@ operations.on.data.set <- function(data, with.donators) {
   data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
   data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
   data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
+  data <- merge(data, count.essay.data, by="projectid", all.x=TRUE)
   
   for(col in names(data)[grepl("word.", names(data))]) {
     data[, col] <- ifelse(is.na(data[, col]), 0, data[, col])
   }
+  
+  data[,"count.word"] <- ifelse(is.na(data[, "count.word"]), 0, data[, "count.word"])
   
   if(with.donators) {
     data <- merge(data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid")

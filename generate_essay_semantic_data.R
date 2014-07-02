@@ -38,6 +38,18 @@ corpus <- tm_map(corpus, removeWords, stopwords("english"))
 
 dtm <- DocumentTermMatrix(corpus,
                           control=list(
+                            stopwords=TRUE))
+
+getAnywhere("row_sums")
+count.rows <- slam::row_sums(dtm)
+
+count.essay.data <- data.frame(
+    projectid=tmp$projectid,
+    count.word=count.rows
+  )
+
+dtm <- DocumentTermMatrix(corpus,
+                          control=list(
                             weighting=weightTfIdf,
                             stopwords=TRUE))
 
@@ -55,7 +67,7 @@ sparsed.dtm.tmp$projectid <- tmp$projectid
 
 semantic.essay.data <- sparsed.dtm.tmp
 
-save(semantic.essay.data, file=file.path("tmp","semantic_essay.RData"))
+save(count.essay.data, semantic.essay.data, file=file.path("tmp","semantic_essay.RData"))
 
 rm(list=ls())
 gc(TRUE)
