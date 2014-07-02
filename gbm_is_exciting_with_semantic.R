@@ -2,14 +2,25 @@ source("functions.R")
 source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
-shrinkage.eval <- 0.02
+shrinkage.eval <- 0.03
 n.trees.eval <- 500
 
-is.exciting.eval <- make.gbm.train.model.estimate(
+is.exciting.eval.with.donators <- make.gbm.train.model.estimate(
   variable="is_exciting",
   days.hist=nb.days,
   shrinkage=shrinkage.eval,
-  n.trees=n.trees.eval
+  n.trees=n.trees.eval,
+  with.donators=FALSE,
+  percent.train=.95
+)
+
+is.exciting.eval.without.donators <- make.gbm.train.model.estimate(
+  variable="is_exciting",
+  days.hist=nb.days,
+  shrinkage=shrinkage.eval,
+  n.trees=n.trees.eval,
+  with.donators=FALSE,
+  percent.train=.95
   )
 
 # fully_funded.eval <- make.gbm.train.model.estimate(

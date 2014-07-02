@@ -102,11 +102,13 @@ donations.by.person.agg <- ddply(
   total_donation_total=sum(donation_to_project+donation_optional_support),
   max_donation_total=max(donation_to_project+donation_optional_support),
   mean_donation_total=mean(donation_to_project+donation_optional_support),
+  median_donation_total=median(donation_to_project+donation_optional_support),
   sd_donation_total=sd(donation_to_project+donation_optional_support),
   
   min_days_since_donation=min(days_since_donation),
   max_days_since_donation=max(days_since_donation),
   mean_days_since_donation=mean(days_since_donation),
+  median_days_since_donation=mean(days_since_donation),
   sd_days_since_donation=sd(days_since_donation),
   
   nb_donation=length(donor_acctid)
