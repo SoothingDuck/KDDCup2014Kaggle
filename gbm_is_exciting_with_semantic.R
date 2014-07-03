@@ -14,6 +14,7 @@ is.exciting.eval <- make.gbm.train.model.estimate(
 )
 
 # cat("auc fully_funded :",make.auc(fully_funded.eval), "\n")
+library(ggplot2)
 auc.list <- make.auc(is.exciting.eval, step.trees=5)
 ggplot(auc.list) + geom_point(aes(x=n.tree, y=auc))
 
@@ -42,43 +43,34 @@ ggplot(data.test) + geom_boxplot(aes(x=is_exciting, y=prediction))
 # )
 
 # is.exciting
-shrinkage.refined <- 0.02
+shrinkage.refined <- 0.01
 n.trees.refined <- 1000
 
-is.exciting.eval.with.donators.refined <- make.gbm.train.model.important(
+is.exciting.eval.refined <- make.gbm.train.model.important(
   variable="is_exciting",
   days.hist=nb.days,
   shrinkage=shrinkage.refined,
   n.trees=n.trees.refined,
-  model.cols=is.exciting.eval.with.donators$important.cols,
-  with.donators=TRUE
+  model.cols=is.exciting.eval$important.cols,
+  percent.train=.8
 )
 
-is.exciting.eval.without.donators.refined <- make.gbm.train.model.important(
-  variable="is_exciting",
-  days.hist=nb.days,
-  shrinkage=shrinkage.refined,
-  n.trees=n.trees.refined,
-  model.cols=is.exciting.eval.without.donators$important.cols,
-  with.donators=FALSE
-)
+library(ggplot2)
+auc.list <- make.auc(is.exciting.eval.refined, step.trees=5)
+ggplot(auc.list) + geom_point(aes(x=n.tree, y=auc))
 
-cat("auc is_exciting with    donators :",make.auc(is.exciting.eval.with.donators.refined), "\n")
-cat("auc is_exciting without donators :",make.auc(is.exciting.eval.without.donators.refined), "\n")
+test.data <- make.projects.test(force=FALSE)
 
-test.data.with.donators <- make.projects.test(force=FALSE, with.donators=TRUE)
-test.data.without.donators <- make.projects.test(force=FALSE, with.donators=FALSE)
-
-prediction.with.donators <- predict(
-  is.exciting.eval.with.donators.refined$model, 
-  newdata=test.data.with.donators[,is.exciting.eval.with.donators.refined$important.cols],
+prediction <- predict(
+  is.exciting.eval.refined$model, 
+  newdata=test.data[,is.exciting.eval.refined$important.cols],
   n.trees=n.trees.refined, 
   type="response"
   )
 
-df.with.donators <- data.frame(
-  projectid=test.data.with.donators$projectid,
-  is_exciting=prediction.with.donators,
+df <- data.frame(
+  projectid=test.data$projectid,
+  is_exciting=prediction,
   stringsAsFactors=FALSE
   )
 
