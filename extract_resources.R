@@ -1,3 +1,5 @@
+source("functions.R")
+source("variables.R")
 library(RSQLite)
 sqlitedb.filename <- file.path("db", "kdd_cup_data.sqlite3")
 
@@ -24,6 +26,31 @@ dbDisconnect(con)
 resources.data <- resources.data[, colnames(resources.data) != "row_names"]
 
 resources.data$total_price <- with(resources.data, item_unit_price*item_quantity)
+
+# Vendor indicator + distinct vendor
+library(reshape2)
+
+tmp <- data.frame(table(resources.data$vendor_name))
+tmp <- tmp[order(-tmp$Freq),]
+frequent.vendor.list <- as.character(tmp$Var1[1:25])
+
+m <- melt(resources.data, id.vars=c("projectid"), measure.vars=c("vendor_name"))
+m$value <- ifelse(m$value %in% frequent.vendor.list, m$value, "Other Vendor")
+m$value[m$value == ""] <- "Unknown"
+m$value <- paste("vendor_name", m$value, sep = ".")
+
+resources.vendor <- dcast(m, projectid ~ value, fun.aggregate=length)
+
+library(plyr)
+agg <- ddply(
+  resources.data,
+  .(projectid),
+  summarise,
+  count.distinct.vendors=length(unique(vendorid))
+  )
+
+resources.vendor <- merge(resources.vendor, agg, by="projectid")
+# End Vendor indicator + distinct vendor
 
 # Agg for project
 drv <- dbDriver("SQLite")

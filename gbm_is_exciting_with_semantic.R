@@ -2,26 +2,30 @@ source("functions.R")
 source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
-shrinkage.eval <- 0.2
-n.trees.eval <- 50
+shrinkage.eval <- 0.05
+n.trees.eval <- 500
 
-is.exciting.eval.with.donators <- make.gbm.train.model.estimate(
+is.exciting.eval <- make.gbm.train.model.estimate(
   variable="is_exciting",
   days.hist=nb.days,
   shrinkage=shrinkage.eval,
   n.trees=n.trees.eval,
-  with.donators=TRUE,
-  percent.train=.95
+  percent.train=.7
 )
 
-is.exciting.eval.without.donators <- make.gbm.train.model.estimate(
-  variable="is_exciting",
-  days.hist=nb.days,
-  shrinkage=shrinkage.eval,
-  n.trees=n.trees.eval,
-  with.donators=FALSE,
-  percent.train=.95
-  )
+prediction.eval <- predict(
+  is.exciting.eval$model, 
+  newdata=is.exciting.eval$data.test[,is.exciting.eval$important.cols],
+  n.trees=n.trees.eval, 
+  type="response"
+)
+
+data.test <- is.exciting.eval$data.test
+data.test$prediction <- prediction.eval
+
+library(ggplot2)
+ggplot(data.test) + geom_boxplot(aes(x=is_exciting, y=prediction))
+
 
 # fully_funded.eval <- make.gbm.train.model.estimate(
 #   variable="fully_funded",
@@ -31,8 +35,7 @@ is.exciting.eval.without.donators <- make.gbm.train.model.estimate(
 # )
 
 # cat("auc fully_funded :",make.auc(fully_funded.eval), "\n")
-cat("auc is_exciting with donators    :",make.auc(is.exciting.eval.with.donators), "\n")
-cat("auc is_exciting without donators :",make.auc(is.exciting.eval.without.donators), "\n")
+auc.list <- make.auc(is.exciting.eval)
 
 # is.exciting
 shrinkage.refined <- 0.02

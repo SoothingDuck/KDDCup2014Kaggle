@@ -60,8 +60,23 @@ dbDisconnect(con)
 library(lubridate)
 projects.data$date_posted <- ymd(projects.data$date_posted)
 projects.data$days_since_posted <- (as.integer(ymd("2014-05-12") - projects.data$date_posted)/(3600*24))
+projects.data$months_since_posted <- round(projects.data$days_since_posted/30)
+projects.data$weeks_since_posted <- round(projects.data$days_since_posted/7)
 # projects.data <- subset(projects.data, days_since_posted <= 1500)
 projects.data <- subset(projects.data, days_since_posted <= nb.days)
+
+# count.weeks.since.posted
+library(plyr)
+
+agg <- ddply(
+    projects.data,
+    .(weeks_since_posted, school_city),
+    summarise,
+    count.weeks.since.posted=length(projectid)
+  )
+
+projects.data <- merge(projects.data, agg, by=c("weeks_since_posted", "school_city"))
+# fin count.weeks.since.posted
 
 # # primary_subject:secondary_subject
 # v <- make.sub.model.matrix(
@@ -93,15 +108,15 @@ projects.data <- subset(projects.data, days_since_posted <= nb.days)
 # projects.data <- merge(projects.data, v, by="projectid")
 # # Fin primary_area:secondary_area
 
-# school_city
-v <- make.sub.model.matrix(
-  projects.data, 
-  ~ school_city,
-  "school_city_big",
-  50
-)
-projects.data <- merge(projects.data, v, by="projectid")
-# Fin school_city
+# # school_city
+# v <- make.sub.model.matrix(
+#   projects.data, 
+#   ~ school_city,
+#   "school_city_big",
+#   50
+# )
+# projects.data <- merge(projects.data, v, by="projectid")
+# # Fin school_city
 
 # # school_district
 # v <- make.sub.model.matrix(
@@ -123,6 +138,46 @@ t <- model.matrix(~ school_state, data=projects.data)
 projects.data <- cbind(projects.data, t[,grepl("school_state", colnames(t))])
 # Fin school_state
 
+# teacher_prefix
+projects.data$teacher_prefix[projects.data$teacher_prefix == ""] <- "Mr." 
+projects.data$teacher_prefix[projects.data$teacher_prefix == "Dr."] <- "Mr." 
+projects.data$teacher_prefix[projects.data$teacher_prefix == "Mr. & Mrs."] <- "Mr." 
+projects.data$teacher_prefix <- factor(toupper(projects.data$teacher_prefix))
+t <- model.matrix(~ teacher_prefix, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("teacher_prefix", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "teacher_prefix"]
+# Fin teacher_prefix
+
+# school_metro
+projects.data$school_metro[projects.data$school_metro == ""] <- "unknown" 
+projects.data$school_metro <- factor(toupper(projects.data$school_metro))
+t <- model.matrix(~ school_metro, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("school_metro", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "school_metro"]
+# Fin school_metro
+
+# resource_type
+projects.data$resource_type <- factor(toupper(projects.data$resource_type))
+t <- model.matrix(~ resource_type, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("resource_type", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "resource_type"]
+# Fin resource_type
+
+# poverty_level
+projects.data$poverty_level <- factor(toupper(projects.data$poverty_level))
+t <- model.matrix(~ poverty_level, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("poverty_level", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "poverty_level"]
+# Fin poverty_level
+
+# grade_level
+projects.data$grade_level <- factor(toupper(projects.data$grade_level))
+t <- model.matrix(~ grade_level, data=projects.data)
+projects.data <- cbind(projects.data, t[,grepl("grade_level", colnames(t))])
+projects.data <- projects.data[, colnames(projects.data) != "grade_level"]
+# Fin grade_level
+
+
 # # school_district
 # projects.data$school_district <- factor(toupper(projects.data$school_district))
 # u <- data.frame(table(projects.data$school_district))
@@ -143,8 +198,6 @@ projects.data <- cbind(projects.data, t[,grepl("school_state", colnames(t))])
 # projects.data <- projects.data[, colnames(projects.data) != "school_county_restriction"]
 # # Fin school_county
 
-projects.data$school_metro <- factor(ifelse(projects.data$school_metro == "", "Unknown", projects.data$school_metro))
-
 projects.data$school_charter <- factor(ifelse(projects.data$school_charter == "t", "Yes", "No"))
 projects.data$school_magnet <- factor(ifelse(projects.data$school_magnet == "t", "Yes", "No"))
 projects.data$school_year_round <- factor(ifelse(projects.data$school_year_round == "t", "Yes", "No"))
@@ -152,10 +205,6 @@ projects.data$school_nlns <- factor(ifelse(projects.data$school_nlns == "t", "Ye
 projects.data$school_kipp <- factor(ifelse(projects.data$school_kipp == "t", "Yes", "No"))
 projects.data$school_charter_ready_promise <- factor(ifelse(projects.data$school_charter_ready_promise == "t", "Yes", "No"))
 
-projects.data$teacher_prefix[projects.data$teacher_prefix == ""] <- "Mr." 
-projects.data$teacher_prefix[projects.data$teacher_prefix == "Dr."] <- "Mr." 
-projects.data$teacher_prefix[projects.data$teacher_prefix == "Mr. & Mrs."] <- "Mr." 
-projects.data$teacher_prefix <- factor(projects.data$teacher_prefix)
 
 # teacher_teach_for_america
 projects.data$teacher_teach_for_america <- factor(toupper(projects.data$teacher_teach_for_america))
@@ -177,12 +226,6 @@ projects.data$secondary_focus_subject <- factor(projects.data$secondary_focus_su
 projects.data$secondary_focus_area <- factor(projects.data$secondary_focus_area)
 
 # projects.data$resource_type[projects.data$resource_type == ""] <- "Supplies"
-projects.data$resource_type <- factor(projects.data$resource_type)
-
-projects.data$poverty_level <- factor(projects.data$poverty_level)
-
-# projects.data$grade_level[projects.data$grade_level == ""] <- "Grades PreK-2"
-projects.data$grade_level <- factor(projects.data$grade_level)
 
 projects.data$students_reached <- ifelse(is.na(projects.data$students_reached), 30.0, projects.data$students_reached)
 

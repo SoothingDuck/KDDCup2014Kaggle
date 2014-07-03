@@ -15,8 +15,11 @@ init.data <- function() {
   source("extract_essays.R")
   source("extract_resources.R")
   
+  print("extraction des essays...")
   projects.data <- merge(projects.data, essays.data, by=c("projectid"), all.x=TRUE)
+  print("extraction des ressources...")
   projects.data <- merge(projects.data, resources.by.type, by=c("projectid"), all.x=TRUE)
+  projects.data <- merge(projects.data, resources.vendor, by=c("projectid"), all.x=TRUE)
   
   for(col in names(projects.data)[grepl("_resource", names(projects.data))]) {
     projects.data[, col] <- ifelse(is.na(projects.data[, col]), 0, projects.data[, col])
@@ -128,6 +131,10 @@ get.project.variables <- function(data) {
   tmp <- c()
   
   tmp <- union(tmp, colnames(data)[grepl("school_state", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("teacher_prefix", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("school_metro", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("resource_type", colnames(data))])
+  tmp <- union(tmp, colnames(data)[grepl("poverty_level", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_subject", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("secondary_focus_subject", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("primary_focus_area", colnames(data))])
@@ -143,23 +150,23 @@ get.project.variables <- function(data) {
   
   tmp <- union(tmp, c(
     # "school_state",
-    "school_metro",
+    # "school_metro",
     "school_charter",
     "school_magnet",
     "school_year_round",
     "school_nlns",
     "school_kipp",
     "school_charter_ready_promise",
-    "teacher_prefix",
+    # "teacher_prefix",
     "teacher_teach_for_americaYes",
     "teacher_ny_teaching_fellow",
     # "primary_focus_subject",
     # "primary_focus_area",
     # "secondary_focus_subject",
     # "secondary_focus_area",
-    "resource_type",
-    "poverty_level",
-    "grade_level",
+    # "resource_type",
+    # "poverty_level",
+    # "grade_level",
     # "fulfillment_labor_materials",
     "eligible_double_your_impact_match",
     "eligible_almost_home_match",
@@ -172,6 +179,9 @@ get.project.variables <- function(data) {
     "total_price_including_optional_support",
     "students_reached",
     "days_since_posted",
+    "months_since_posted",
+    "weeks_since_posted",
+    "count.weeks.since.posted",
     "nb.projects.for.school",
     "nb.projects.for.teacher",
     # "nb.projects.by.state",
@@ -246,11 +256,14 @@ get.resource.variables <- function(data) {
   tmp <- c(
     "total_price_project",
     "nb_item_project",
-    "nb_distinct_vendors_project"
+    "nb_distinct_vendors_project",
+    "count.distinct.vendors"
     )
   
   tmp <- union(tmp, colnames(data)[grepl("_total_price_resource", colnames(data))])
   tmp <- union(tmp, colnames(data)[grepl("_nb_item_resource", colnames(data))])
+  
+  tmp <- union(tmp, colnames(data)[grepl("vendor_name.", colnames(data))])  
   
   return(tmp)
   
@@ -288,26 +301,36 @@ split.train.test <- function(data, percent.train=.7) {
 }
 
 
-make.auc <- function(model.object) {
+make.auc <- function(model.object, step.trees=20) {
   
   y <- model.object$data.test[,model.object$y.variable]
   
   model.cols <- rownames(model.object$importance)
   
-  predicted <- predict(model.object$model, newdata=model.object$data.test[,model.cols],n.trees=model.object$n.trees, type="response")
-  auc.value <- auc(y, predicted)
+  result <- data.frame()
+  for(n.trees in seq(1, model.object$n.trees + 1, step.trees)) {
+    predicted <- predict(model.object$model, newdata=model.object$data.test[,model.cols],n.trees=n.trees, type="response")
+    auc.value <- auc(y, predicted)
+    
+    result <- rbind(
+      result,
+      data.frame(
+        n.tree=n.trees,
+        auc=auc.value
+        )
+      )
+  }
   
-  return(auc.value)
+  return(result)
 }
 
-make.model.variable.list <- function(data, with.donators) {
+make.model.variable.list <- function(data) {
   
   all.cols <- get.all.variables(data)
   all.cols <- union(all.cols, colnames(data)[grepl("word", colnames(data))])
   
   all.cols <- union(all.cols, c("count.word"))
   
-  if(with.donators) {
     #   total_donation_to_project=sum(donation_to_project),
     #   max_donation_to_project=max(donation_to_project),
     #   mean_donation_to_project=mean(donation_to_project),
@@ -382,7 +405,6 @@ make.model.variable.list <- function(data, with.donators) {
         "is_teacher_donator"
       ))
     
-  }
   
   model.cols <- all.cols
   # model.cols <- model.cols[! grepl("school_state", model.cols)]
@@ -390,7 +412,7 @@ make.model.variable.list <- function(data, with.donators) {
   return(model.cols)
 }
 
-operations.on.data.set <- function(data, with.donators) {
+operations.on.data.set <- function(data) {
 
   load(file=file.path("tmp","semantic_item_name.RData"))
   load(file=file.path("tmp","semantic_short_description.RData"))
@@ -411,7 +433,6 @@ operations.on.data.set <- function(data, with.donators) {
   
   data[,"count.word"] <- ifelse(is.na(data[, "count.word"]), 0, data[, "count.word"])
   
-  if(with.donators) {
     data <- merge(data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid")
     
     data$is_teacher_donator <- with(data, ifelse(is.na(total_donation_to_project), 0, 1))
@@ -443,40 +464,35 @@ operations.on.data.set <- function(data, with.donators) {
     data$median_diff_days_since_donation <- with(data, ifelse(is.na(median_diff_days_since_donation), 0, median_diff_days_since_donation))
     
     data$nb_donation <- with(data, ifelse(is.na(nb_donation), 0, nb_donation))
-    
-  } else {
-    data <- data[! data$teacher_acctid %in% donations.by.person.agg$donor_acctid,]
-    
-  }
-  
+      
   return(data)
 }
 
-make.projects.train <-  function(variable, days.hist, force=FALSE, with.donators=TRUE, percent.train=0.95) {
+make.projects.train <-  function(variable, days.hist, force=FALSE, percent.train=0.95) {
   projects.train.is.exciting.all <- get.projects.data.train(force=force, variable=variable)
   projects.train.is.exciting.all <- subset(projects.train.is.exciting.all, days_since_posted <= days.hist)
   
-  projects.train.is.exciting.all <- operations.on.data.set(projects.train.is.exciting.all, with.donators=with.donators)
+  projects.train.is.exciting.all <- operations.on.data.set(projects.train.is.exciting.all)
   
   projects.train.is.exciting <- split.train.test(projects.train.is.exciting.all, percent.train=percent.train)
   
   return(projects.train.is.exciting)
 }
 
-make.projects.test <-  function(force=FALSE, with.donators=TRUE) {
+make.projects.test <-  function(force=FALSE) {
   projects.train.is.exciting.all <- get.projects.data.test(force=force)
   
-  projects.train.is.exciting.all <- operations.on.data.set(projects.train.is.exciting.all, with.donators=with.donators)
+  projects.train.is.exciting.all <- operations.on.data.set(projects.train.is.exciting.all)
   
   # projects.train.is.exciting <- split.train.test(projects.train.is.exciting.all, percent.train=percent.train)
   
   return(projects.train.is.exciting.all)
 }
 
-make.gbm.train.model.estimate <- function(variable, days.hist, shrinkage, n.trees, force=FALSE, percent.train=0.95, with.donators=TRUE) {
+make.gbm.train.model.estimate <- function(variable, days.hist, shrinkage, n.trees, force=FALSE, percent.train=0.95) {
   
-  projects.train.is.exciting <- make.projects.train(variable, days.hist, force=force, percent.train=percent.train, with.donators=with.donators)
-  model.cols <- make.model.variable.list(projects.train.is.exciting$train, with.donators=with.donators)
+  projects.train.is.exciting <- make.projects.train(variable, days.hist, force=force, percent.train=percent.train)
+  model.cols <- make.model.variable.list(projects.train.is.exciting$train)
   
   model.is.exciting <- get.gbm.model(
     xtrain=projects.train.is.exciting$train[,model.cols], 
@@ -499,9 +515,9 @@ make.gbm.train.model.estimate <- function(variable, days.hist, shrinkage, n.tree
   ))
 }
 
-make.gbm.train.model.important <- function(variable, days.hist, shrinkage, n.trees, model.cols, force=FALSE, percent.train=0.95, with.donators=TRUE) {
+make.gbm.train.model.important <- function(variable, days.hist, shrinkage, n.trees, model.cols, force=FALSE, percent.train=0.95) {
   
-  projects.train.is.exciting <- make.projects.train(variable, days.hist, force=force, percent.train=percent.train, with.donators=with.donators)
+  projects.train.is.exciting <- make.projects.train(variable, days.hist, force=force, percent.train=percent.train)
   
   model.is.exciting <- get.gbm.model(
     xtrain=projects.train.is.exciting$train[,model.cols], 
