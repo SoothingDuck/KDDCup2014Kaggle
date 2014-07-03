@@ -179,9 +179,9 @@ get.project.variables <- function(data) {
     "total_price_including_optional_support",
     "students_reached",
     "days_since_posted",
-    "months_since_posted",
-    "weeks_since_posted",
-    "count.weeks.since.posted",
+#     "months_since_posted",
+#     "weeks_since_posted",
+#     "count.weeks.since.posted",
     "nb.projects.for.school",
     "nb.projects.for.teacher",
     # "nb.projects.by.state",
@@ -256,8 +256,8 @@ get.resource.variables <- function(data) {
   tmp <- c(
     "total_price_project",
     "nb_item_project",
-    "nb_distinct_vendors_project",
-    "count.distinct.vendors"
+    "nb_distinct_vendors_project"
+#     "count.distinct.vendors"
     )
   
   tmp <- union(tmp, colnames(data)[grepl("_total_price_resource", colnames(data))])
@@ -329,7 +329,7 @@ make.model.variable.list <- function(data) {
   all.cols <- get.all.variables(data)
   all.cols <- union(all.cols, colnames(data)[grepl("word", colnames(data))])
   
-  all.cols <- union(all.cols, c("count.word"))
+  # all.cols <- union(all.cols, c("count.word"))
   
     #   total_donation_to_project=sum(donation_to_project),
     #   max_donation_to_project=max(donation_to_project),
@@ -342,8 +342,8 @@ make.model.variable.list <- function(data) {
         "total_donation_to_project", 
         "max_donation_to_project",
         "mean_donation_to_project",
-        "median_donation_to_project",
-        "sd_donation_to_project"
+        "median_donation_to_project"
+#         "sd_donation_to_project"
       )
     )
     
@@ -358,8 +358,8 @@ make.model.variable.list <- function(data) {
         "total_donation_optional_support", 
         "max_donation_optional_support",
         "mean_donation_optional_support",
-        "median_donation_optional_support",
-        "sd_donation_optional_support"
+        "median_donation_optional_support"
+#         "sd_donation_optional_support"
       )
     )
     
@@ -374,8 +374,8 @@ make.model.variable.list <- function(data) {
         "total_donation_total", 
         "max_donation_total",
         "mean_donation_total",
-        "median_donation_total",
-        "sd_donation_total"
+        "median_donation_total"
+#         "sd_donation_total"
       )
     )
     
@@ -391,10 +391,10 @@ make.model.variable.list <- function(data) {
         "min_days_since_donation", 
         "max_days_since_donation",
         "mean_days_since_donation",
-        "median_days_since_donation",
-        "sd_days_since_donation",
-	"mean_diff_days_since_donation",
-	"median_diff_days_since_donation"
+        "median_days_since_donation"
+#         "sd_days_since_donation",
+# 	"mean_diff_days_since_donation",
+# 	"median_diff_days_since_donation"
       ))
     
     #   nb_donation=length(donor_acctid)
@@ -414,24 +414,24 @@ make.model.variable.list <- function(data) {
 
 operations.on.data.set <- function(data) {
 
-  load(file=file.path("tmp","semantic_item_name.RData"))
-  load(file=file.path("tmp","semantic_short_description.RData"))
-  load(file=file.path("tmp","semantic_title.RData"))
-  load(file=file.path("tmp","semantic_essay.RData"))
-  load(file=file.path("tmp","semantic_need_statement.RData"))
-  
-  data <- merge(data, semantic.item_name.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.short_description.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
-  data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
-  data <- merge(data, count.essay.data, by="projectid", all.x=TRUE)
+#   load(file=file.path("tmp","semantic_item_name.RData"))
+#   load(file=file.path("tmp","semantic_short_description.RData"))
+#   load(file=file.path("tmp","semantic_title.RData"))
+#   load(file=file.path("tmp","semantic_essay.RData"))
+#   load(file=file.path("tmp","semantic_need_statement.RData"))
+#   
+#   data <- merge(data, semantic.item_name.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.short_description.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.title.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.essay.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, semantic.need_statement.data, by="projectid", all.x=TRUE)
+#   data <- merge(data, count.essay.data, by="projectid", all.x=TRUE)
   
   for(col in names(data)[grepl("word.", names(data))]) {
     data[, col] <- ifelse(is.na(data[, col]), 0, data[, col])
   }
   
-  data[,"count.word"] <- ifelse(is.na(data[, "count.word"]), 0, data[, "count.word"])
+  # data[,"count.word"] <- ifelse(is.na(data[, "count.word"]), 0, data[, "count.word"])
   
   data <- merge(data, donations.by.person.agg, by.x="teacher_acctid", by.y="donor_acctid", all.x=TRUE)
   
@@ -441,30 +441,31 @@ operations.on.data.set <- function(data) {
   data$median_donation_to_project <- with(data, ifelse(is.na(median_donation_to_project), 0, median_donation_to_project))
   data$max_donation_to_project <- with(data, ifelse(is.na(max_donation_to_project), 0, max_donation_to_project))
   data$mean_donation_to_project <- with(data, ifelse(is.na(mean_donation_to_project), 0, mean_donation_to_project))
-  data$sd_donation_to_project <- with(data, ifelse(is.na(sd_donation_to_project), 0, sd_donation_to_project))
+#   data$sd_donation_to_project <- with(data, ifelse(is.na(sd_donation_to_project), 0, sd_donation_to_project))
   
   data$total_donation_optional_support <- with(data, ifelse(is.na(total_donation_optional_support), 0, total_donation_optional_support))
   data$max_donation_optional_support <- with(data, ifelse(is.na(max_donation_optional_support), 0, max_donation_optional_support))
   data$mean_donation_optional_support <- with(data, ifelse(is.na(mean_donation_optional_support), 0, mean_donation_optional_support))
   data$median_donation_optional_support <- with(data, ifelse(is.na(median_donation_optional_support), 0, median_donation_optional_support))
-  data$sd_donation_optional_support <- with(data, ifelse(is.na(sd_donation_optional_support), 0, sd_donation_optional_support))
+#   data$sd_donation_optional_support <- with(data, ifelse(is.na(sd_donation_optional_support), 0, sd_donation_optional_support))
   
   data$total_donation_total <- with(data, ifelse(is.na(total_donation_total), 0, total_donation_total))
   data$max_donation_total <- with(data, ifelse(is.na(max_donation_total), 0, max_donation_total))
   data$mean_donation_total <- with(data, ifelse(is.na(mean_donation_total), 0, mean_donation_total))
   data$median_donation_total <- with(data, ifelse(is.na(median_donation_total), 0, median_donation_total))
-  data$sd_donation_total <- with(data, ifelse(is.na(sd_donation_total), 0, sd_donation_total))
+#   data$sd_donation_total <- with(data, ifelse(is.na(sd_donation_total), 0, sd_donation_total))
   
   data$min_days_since_donation <- with(data, ifelse(is.na(min_days_since_donation), 5000, min_days_since_donation))
   data$max_days_since_donation <- with(data, ifelse(is.na(max_days_since_donation), 5000, max_days_since_donation))
   data$mean_days_since_donation <- with(data, ifelse(is.na(mean_days_since_donation), 5000, mean_days_since_donation))
   data$median_days_since_donation <- with(data, ifelse(is.na(median_days_since_donation), 5000, median_days_since_donation))
-  data$sd_days_since_donation <- with(data, ifelse(is.na(sd_days_since_donation), 0, sd_days_since_donation))
-  data$mean_diff_days_since_donation <- with(data, ifelse(is.na(mean_diff_days_since_donation), 0, mean_diff_days_since_donation))
-  data$median_diff_days_since_donation <- with(data, ifelse(is.na(median_diff_days_since_donation), 0, median_diff_days_since_donation))
+#   data$sd_days_since_donation <- with(data, ifelse(is.na(sd_days_since_donation), 0, sd_days_since_donation))
+#   data$mean_diff_days_since_donation <- with(data, ifelse(is.na(mean_diff_days_since_donation), 0, mean_diff_days_since_donation))
+#   data$median_diff_days_since_donation <- with(data, ifelse(is.na(median_diff_days_since_donation), 0, median_diff_days_since_donation))
   
   data$nb_donation <- with(data, ifelse(is.na(nb_donation), 0, nb_donation))
-      
+  
+  
   return(data)
 }
 
@@ -489,7 +490,7 @@ make.projects.test <-  function(force=FALSE) {
   return(projects.train.is.exciting.all)
 }
 
-make.gbm.train.model.estimate <- function(variable, days.hist, shrinkage, n.trees, force=FALSE, percent.train=0.95) {
+make.gbm.train.model.estimate <- function(variable, days.hist, shrinkage, n.trees, force=FALSE, percent.train=0.95, ...) {
   
   projects.train.is.exciting <- make.projects.train(variable, days.hist, force=force, percent.train=percent.train)
   model.cols <- make.model.variable.list(projects.train.is.exciting$train)
@@ -498,7 +499,8 @@ make.gbm.train.model.estimate <- function(variable, days.hist, shrinkage, n.tree
     xtrain=projects.train.is.exciting$train[,model.cols], 
     ytrain=projects.train.is.exciting$train[,c(variable)], 
     shrinkage = shrinkage,
-    n.trees = n.trees
+    n.trees = n.trees,
+    ...
   )
   
   df <- data.frame(summary(model.is.exciting))
