@@ -77,7 +77,7 @@ donations.data$donation_date <- ymd(substr(donations.data$donation_timestamp,1,1
 donations.data$days_since_donation <- (as.integer(ymd("2014-05-12") - donations.data$donation_date))
 # donations.data <- subset(donations.data, days_since_donation <= 350)
 # donations.data <- subset(donations.data, days_since_donation <= 180)
-donations.data <- subset(donations.data, days_since_donation <= 1350)
+donations.data <- subset(donations.data, days_since_donation <= (nb.days*2))
 
 # agg
 library(plyr)

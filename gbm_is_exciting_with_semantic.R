@@ -2,8 +2,16 @@ source("functions.R")
 source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
-shrinkage.eval <- 0.01
-n.trees.eval <- 450
+shrinkage.eval <- 0.1
+n.trees.eval <- 200
+
+# data <- make.projects.train("is_exciting", days.hist=400, force=FALSE, percent.train=0.95)
+# data.train <- data$train
+# data.test <- make.projects.test(force=FALSE)
+# 
+# library(ggplot2)
+# ggplot() + geom_histogram(aes(x=days_since_posted,fill="train"), binwidth=5, data=data.train) +
+#   geom_histogram(aes(x=days_since_posted,fill="test"), binwidth=5, data=data.test)
 
 is.exciting.eval <- make.gbm.train.model.estimate(
   variable="is_exciting",
@@ -15,7 +23,7 @@ is.exciting.eval <- make.gbm.train.model.estimate(
 
 # cat("auc fully_funded :",make.auc(fully_funded.eval), "\n")
 library(ggplot2)
-auc.list <- make.auc(is.exciting.eval, step.trees=5)
+auc.list <- make.auc(is.exciting.eval, step.trees=1)
 ggplot(auc.list) + geom_point(aes(x=n.tree, y=auc))
 
 
@@ -44,7 +52,7 @@ ggplot(data.test) + geom_boxplot(aes(x=is_exciting, y=prediction))
 
 # is.exciting
 shrinkage.refined <- 0.01
-n.trees.refined <- 1000
+n.trees.refined <- 2000
 
 is.exciting.eval.refined <- make.gbm.train.model.important(
   variable="is_exciting",
@@ -52,12 +60,27 @@ is.exciting.eval.refined <- make.gbm.train.model.important(
   shrinkage=shrinkage.refined,
   n.trees=n.trees.refined,
   model.cols=is.exciting.eval$important.cols,
-  percent.train=.8
+  percent.train=.9
 )
 
 library(ggplot2)
-auc.list <- make.auc(is.exciting.eval.refined, step.trees=5)
+auc.list <- make.auc(is.exciting.eval.refined, step.trees=10)
 ggplot(auc.list) + geom_point(aes(x=n.tree, y=auc))
+
+# estimate error refined
+prediction.eval.refined <- predict(
+  is.exciting.eval.refined$model, 
+  newdata=is.exciting.eval.refined$data.test[,is.exciting.eval.refined$important.cols],
+  n.trees=n.trees.refined, 
+  type="response"
+)
+
+data.test <- is.exciting.eval.refined$data.test
+data.test$prediction <- prediction.eval.refined
+
+library(ggplot2)
+ggplot(data.test) + geom_boxplot(aes(x=is_exciting, y=prediction))
+
 
 test.data <- make.projects.test(force=FALSE)
 
@@ -73,21 +96,6 @@ df <- data.frame(
   is_exciting=prediction,
   stringsAsFactors=FALSE
   )
-
-prediction.without.donators <- predict(
-  is.exciting.eval.without.donators.refined$model, 
-  newdata=test.data.without.donators[,is.exciting.eval.without.donators.refined$important.cols],
-  n.trees=n.trees.refined, 
-  type="response"
-)
-
-df.without.donators <- data.frame(
-  projectid=test.data.without.donators$projectid,
-  is_exciting=prediction.without.donators,
-  stringsAsFactors=FALSE
-)
-
-df <- rbind(df.with.donators, df.without.donators)
 
 write.csv(
   x=df, 
