@@ -308,7 +308,7 @@ make.auc <- function(model.object, step.trees=20) {
   model.cols <- rownames(model.object$importance)
   
   result <- data.frame()
-  for(n.trees in seq(1, model.object$n.trees + 1, step.trees)) {
+  for(n.trees in c(seq(1, model.object$n.trees, step.trees),model.object$n.trees)) {
     predicted <- predict(model.object$model, newdata=model.object$data.test[,model.cols],n.trees=n.trees, type="response")
     auc.value <- auc(y, predicted)
     

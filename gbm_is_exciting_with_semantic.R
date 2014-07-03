@@ -2,8 +2,8 @@ source("functions.R")
 source("variables.R")
 load(file=file.path("tmp","donations_by_person_agg.RData"))
 
-shrinkage.eval <- 0.05
-n.trees.eval <- 500
+shrinkage.eval <- 0.01
+n.trees.eval <- 450
 
 is.exciting.eval <- make.gbm.train.model.estimate(
   variable="is_exciting",
@@ -12,6 +12,13 @@ is.exciting.eval <- make.gbm.train.model.estimate(
   n.trees=n.trees.eval,
   percent.train=.7
 )
+
+# cat("auc fully_funded :",make.auc(fully_funded.eval), "\n")
+auc.list <- make.auc(is.exciting.eval, step.trees=5)
+ggplot(auc.list) + geom_point(aes(x=n.tree, y=auc))
+
+
+# estimate errors
 
 prediction.eval <- predict(
   is.exciting.eval$model, 
@@ -33,9 +40,6 @@ ggplot(data.test) + geom_boxplot(aes(x=is_exciting, y=prediction))
 #   shrinkage=shrinkage.eval,
 #   n.trees=n.trees.eval
 # )
-
-# cat("auc fully_funded :",make.auc(fully_funded.eval), "\n")
-auc.list <- make.auc(is.exciting.eval)
 
 # is.exciting
 shrinkage.refined <- 0.02
